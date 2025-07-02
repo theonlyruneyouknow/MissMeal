@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Missionary - Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Calendar</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link">Families</a>
+                <a href="/missionaries" class="nav-link active">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-header">
+            <h2>Add New Sister Missionary</h2>
+            <div class="header-actions">
+                <a href="/missionaries" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Missionaries
+                </a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form action="/missionaries" method="POST">
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number *</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="(555) 123-4567">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="sister.lastname@missionary.org">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Mission Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companionshipArea">Companionship Area *</label>
+                            <input type="text" id="companionshipArea" name="companionshipArea" required placeholder="e.g., Downtown, Westside, etc.">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="isTrainer">
+                                <input type="checkbox" id="isTrainer" name="isTrainer">
+                                Training Sister
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="arrivalDate">Arrival Date *</label>
+                            <input type="date" id="arrivalDate" name="arrivalDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expectedDepartureDate">Expected Departure Date</label>
+                            <input type="date" id="expectedDepartureDate" name="expectedDepartureDate">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Dietary Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="allergies">Allergies</label>
+                        <textarea id="allergies" name="allergies" rows="2" placeholder="List any food allergies or medical restrictions..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dietaryRestrictions">Dietary Restrictions</label>
+                        <textarea id="dietaryRestrictions" name="dietaryRestrictions" rows="2" placeholder="Vegetarian, vegan, gluten-free, etc..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Additional Notes</h3>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/missionaries" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Add Missionary
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .form-section {
+            padding: 2rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        
+        .form-section h3 {
+            color: #2c3e50;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-actions {
+            padding: 2rem;
+            background: #f8f9fa;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script>
+        // Phone number formatting
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.substring(0, 10);
+            
+            if (value.length >= 6) {
+                value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6)}`;
+            } else if (value.length >= 3) {
+                value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+            }
+            
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Family - Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Calendar</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link active">Families</a>
+                <a href="/missionaries" class="nav-link">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-header">
+            <h2>Add New Ward Family</h2>
+            <div class="header-actions">
+                <a href="/families" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Families
+                </a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form action="/families" method="POST">
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Family Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="familyName">Family Name *</label>
+                            <input type="text" id="familyName" name="familyName" required placeholder="e.g., The Smith Family">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactName">Primary Contact *</label>
+                            <input type="text" id="contactName" name="contactName" required placeholder="e.g., John Smith">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number *</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="(555) 123-4567">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required placeholder="family@example.com">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3><i class="fas fa-home"></i> Address Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="street">Street Address</label>
+                        <input type="text" id="street" name="street" placeholder="123 Main Street">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" placeholder="Your City">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state" placeholder="UT" maxlength="2">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="zipCode">ZIP Code</label>
+                            <input type="text" id="zipCode" name="zipCode" placeholder="84000" maxlength="10">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3><i class="fas fa-cog"></i> Meal Preferences</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="preferredDeliveryType">Delivery Preference</label>
+                            <select id="preferredDeliveryType" name="preferredDeliveryType">
+                                <option value="either">Any option works for us</option>
+                                <option value="dining">Sisters dine with our family</option>
+                                <option value="delivery">I prefer to deliver meals</option>
+                                <option value="pickup">They can pick up from me</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="maxMealsPerMonth">Max Meals Per Month</label>
+                            <select id="maxMealsPerMonth" name="maxMealsPerMonth">
+                                <option value="1">1 meal per month</option>
+                                <option value="2" selected>2 meals per month</option>
+                                <option value="3">3 meals per month</option>
+                                <option value="4">4 meals per month</option>
+                                <option value="99">No limit</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Days</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Monday"> Monday
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Tuesday"> Tuesday
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Wednesday"> Wednesday
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Thursday"> Thursday
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Friday"> Friday
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Saturday"> Saturday
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availableDays" value="Sunday"> Sunday
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Special Considerations</h3>
+                    
+                    <div class="form-group">
+                        <label for="allergies">Family Allergies</label>
+                        <textarea id="allergies" name="allergies" rows="2" placeholder="List any food allergies or restrictions that would affect meal preparation..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Any other information about availability, preferences, or special circumstances..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/families" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Add Family
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .form-section {
+            padding: 2rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+        
+        .form-section h3 {
+            color: #2c3e50;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-row.three-cols {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .form-actions {
+            padding: 2rem;
+            background: #f8f9fa;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row,
+            .form-row.three-cols {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script>
+        // Phone number formatting
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.substring(0, 10);
+            
+            if (value.length >= 6) {
+                value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6)}`;
+            } else if (value.length >= 3) {
+                value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+            }
+            
+            e.target.value = value;
+        });
+
+        // State input formatting (uppercase)
+        document.getElementById('state').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // ZIP code formatting
+        document.getElementById('zipCode').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 9);
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

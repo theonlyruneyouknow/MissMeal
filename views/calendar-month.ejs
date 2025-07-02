@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar View - Missionary Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Card View</a>
+                <a href="/calendar" class="nav-link active">Calendar</a>
+                <a href="/calendar/list" class="nav-link">List View</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link">Families</a>
+                <a href="/missionaries" class="nav-link">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-controls">
+            <div class="month-navigation">
+                <button onclick="previousMonth()" class="btn btn-secondary">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                
+                <h2 id="currentMonthTitle">
+                    <%= new Date(currentYear, currentMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %>
+                </h2>
+                
+                <button onclick="nextMonth()" class="btn btn-secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="view-controls">
+                <div class="layout-toggle">
+                    <label for="layoutToggle">Layout:</label>
+                    <select id="layoutToggle" onchange="toggleLayout()">
+                        <option value="vertical">Vertical</option>
+                        <option value="horizontal">Horizontal</option>
+                    </select>
+                </div>
+                
+                <div class="week-toggle">
+                    <label for="showSixWeeks">
+                        <input type="checkbox" id="showSixWeeks" onchange="toggleSixWeeks()">
+                        Show 6 weeks
+                    </label>
+                </div>
+                
+                <button onclick="goToToday()" class="btn btn-primary">
+                    <i class="fas fa-calendar-day"></i> Today
+                </button>
+                
+                <a href="/meals/new" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add Meal
+                </a>
+            </div>
+        </div>
+
+        <!-- Desktop Calendar View -->
+        <div class="calendar-container desktop-calendar" id="desktopCalendar">
+            <div class="calendar-layout vertical" id="calendarLayout">
+                <!-- Calendar Header (Days of Week) -->
+                <div class="calendar-header">
+                    <div class="day-header">Sunday</div>
+                    <div class="day-header">Monday</div>
+                    <div class="day-header">Tuesday</div>
+                    <div class="day-header">Wednesday</div>
+                    <div class="day-header">Thursday</div>
+                    <div class="day-header">Friday</div>
+                    <div class="day-header">Saturday</div>
+                </div>
+                
+                <!-- Calendar Grid -->
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar days will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Week View -->
+        <div class="calendar-container mobile-calendar" id="mobileCalendar">
+            <div class="week-navigation">
+                <button onclick="previousWeek()" class="btn btn-small btn-secondary">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span id="currentWeekTitle">Week View</span>
+                <button onclick="nextWeek()" class="btn btn-small btn-secondary">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="week-view" id="weekView">
+                <!-- Week days will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <div class="legend-color dining"></div>
+                <span>Sisters Dining with Family</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color delivery"></div>
+                <span>Meal Delivery</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color pickup"></div>
+                <span>Meal Pickup</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color unassigned"></div>
+                <span>Family Needed</span>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .month-navigation {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .month-navigation h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .view-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .layout-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .layout-toggle select {
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+        }
+        
+        .week-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .calendar-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .desktop-calendar {
+            display: block;
+        }
+        
+        .mobile-calendar {
+            display: none;
+        }
+        
+        .calendar-layout.vertical {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .calendar-layout.horizontal {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+        }
+        
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+        }
+        
+        .calendar-layout.horizontal .calendar-header {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            min-width: 100px;
+        }
+        
+        .day-header {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .day-header:last-child {
+            border-right: none;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            min-height: 600px;
+        }
+        
+        .calendar-layout.horizontal .calendar-grid {
+            grid-template-rows: repeat(7, 1fr);
+            grid-template-columns: none;
+            grid-auto-flow: column;
+            min-width: 800px;
+            min-height: 400px;
+        }
+        
+        .calendar-day {
+            border: 1px solid #e9ecef;
+            padding: 0.5rem;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #fff;
+        }
+        
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .calendar-day.today {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-color: #f39c12;
+            border-width: 2px;
+        }
+        
+        .day-number {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-day.other-month .day-number {
+            color: #95a5a6;
+        }
+        
+        .day-meals {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            overflow-y: auto;
+        }
+        
+        .meal-item {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            border-left: 3px solid #3498db;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .meal-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .meal-item.dining {
+            border-left-color: #9b59b6;
+            background: #f4f1f8;
+        }
+        
+        .meal-item.delivery {
+            border-left-color: #3498db;
+            background: #ebf3fd;
+        }
+        
+        .meal-item.pickup {
+            border-left-color: #f39c12;
+            background: #fef9e7;
+        }
+        
+        .meal-item.unassigned {
+            border-left-color: #e74c3c;
+            background: #fadbd8;
+        }
+        
+        .meal-time {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .meal-missionaries {
+            color: #7f8c8d;
+            font-size: 0.6rem;
+            margin: 0.1rem 0;
+        }
+        
+        .meal-family {
+            color: #27ae60;
+            font-size: 0.6rem;
+            font-weight: 500;
+        }
+        
+        .meal-family.unassigned {
+            color: #e74c3c;
+            font-style: italic;
+        }
+        
+        .week-navigation {
+            padding: 1rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .week-view {
+            padding: 1rem;
+        }
+        
+        .week-day {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .week-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .week-day-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .week-day-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .week-day.today {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-color: #f39c12;
+        }
+        
+        .calendar-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-color.dining {
+            background: #9b59b6;
+        }
+        
+        .legend-color.delivery {
+            background: #3498db;
+        }
+        
+        .legend-color.pickup {
+            background: #f39c12;
+        }
+        
+        .legend-color.unassigned {
+            background: #e74c3c;
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .desktop-calendar {
+                display: none;
+            }
+            
+            .mobile-calendar {
+                display: block;
+            }
+            
+            .calendar-controls {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .month-navigation {
+                order: 1;
+            }
+            
+            .view-controls {
+                order: 2;
+                justify-content: center;
+            }
+            
+            .calendar-legend {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .view-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .month-navigation h2 {
+                font-size: 1.2rem;
+                min-width: auto;
+            }
+        }
+    </style>
+
+    <!-- Server data as JSON (IDE-friendly) -->
+    <script type="application/json" id="calendarData">
+        {
+            "currentYear": <%= currentYear %>,
+            "currentMonth": <%= currentMonth %>,
+            "meals": <%- JSON.stringify(meals) %>
+        }
+    </script>
+
+    <script>
+        // Global variables - completely IDE-friendly
+        let currentYear, currentMonth, mealsData;
+        let currentWeekStart = new Date();
+        let showSixWeeks = false;
+        
+        // Load server data safely
+        function loadCalendarData() {
+            try {
+                const dataElement = document.getElementById('calendarData');
+                const data = JSON.parse(dataElement.textContent);
+                
+                currentYear = data.currentYear;
+                currentMonth = data.currentMonth;
+                mealsData = data.meals || [];
+                
+                console.log('Calendar data loaded:', { currentYear, currentMonth, mealsCount: mealsData.length });
+            } catch (error) {
+                console.error('Error loading calendar data:', error);
+                // Fallback to current date
+                const now = new Date();
+                currentYear = now.getFullYear();
+                currentMonth = now.getMonth() + 1;
+                mealsData = [];
+            }
+        }
+        
+        // Initialize calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCalendarData();
+            initializeCalendar();
+            updateWeekView();
+        });
+        
+        function initializeCalendar() {
+            generateCalendarGrid();
+            updateMonthTitle();
+        }
+        
+        function generateCalendarGrid() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            
+            // Calculate first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth - 1, 1);
+            const lastDay = new Date(currentYear, currentMonth, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDayOfWeek = firstDay.getDay();
+            
+            // Calculate previous month days to show
+            const prevMonth = new Date(currentYear, currentMonth - 2, 0);
+            const daysInPrevMonth = prevMonth.getDate();
+            
+            // Generate calendar days
+            const totalCells = showSixWeeks ? 42 : 35;
+            
+            for (let i = 0; i < totalCells; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                let dayNumber, actualDate, isCurrentMonth = true;
+                
+                if (i < startDayOfWeek) {
+                    // Previous month days
+                    dayNumber = daysInPrevMonth - (startDayOfWeek - i - 1);
+                    actualDate = new Date(currentYear, currentMonth - 2, dayNumber);
+                    isCurrentMonth = false;
+                    dayElement.classList.add('other-month');
+                } else if (i < startDayOfWeek + daysInMonth) {
+                    // Current month days
+                    dayNumber = i - startDayOfWeek + 1;
+                    actualDate = new Date(currentYear, currentMonth - 1, dayNumber);
+                } else {
+                    // Next month days
+                    dayNumber = i - startDayOfWeek - daysInMonth + 1;
+                    actualDate = new Date(currentYear, currentMonth, dayNumber);
+                    isCurrentMonth = false;
+                    dayElement.classList.add('other-month');
+                }
+                
+                // Check if it's today
+                const today = new Date();
+                if (actualDate.toDateString() === today.toDateString()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Create day content
+                dayElement.innerHTML = `
+                    <div class="day-number">${dayNumber}</div>
+                    <div class="day-meals" id="meals-${actualDate.toISOString().split('T')[0]}">
+                        ${generateDayMeals(actualDate)}
+                    </div>
+                `;
+                
+                grid.appendChild(dayElement);
+            }
+        }
+        
+        function generateDayMeals(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            const dayMeals = mealsData.filter(meal => 
+                meal.date.startsWith(dateStr)
+            );
+            
+            return dayMeals.map(meal => `
+                <div class="meal-item ${meal.isAssigned ? meal.deliveryType : 'unassigned'}" 
+                     onclick="viewMeal('${meal._id}')">
+                    <div class="meal-time">${meal.time}</div>
+                    <div class="meal-missionaries">
+                        ${meal.companionship.map(m => m.fullName.replace('Sister ', '')).join(' & ')}
+                    </div>
+                    <div class="meal-family ${meal.isAssigned ? '' : 'unassigned'}">
+                        ${meal.isAssigned ? meal.family.familyName : 'Family Needed'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateMonthTitle() {
+            const title = new Date(currentYear, currentMonth - 1).toLocaleDateString('en-US', { 
+                month: 'long', 
+                year: 'numeric' 
+            });
+            document.getElementById('currentMonthTitle').textContent = title;
+        }
+        
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 1) {
+                currentMonth = 12;
+                currentYear--;
+            }
+            loadMonthData();
+        }
+        
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
+            }
+            loadMonthData();
+        }
+        
+        function goToToday() {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth() + 1;
+            loadMonthData();
+        }
+        
+        function toggleLayout() {
+            const layout = document.getElementById('layoutToggle').value;
+            const calendarLayout = document.getElementById('calendarLayout');
+            calendarLayout.className = `calendar-layout ${layout}`;
+        }
+        
+        function toggleSixWeeks() {
+            showSixWeeks = document.getElementById('showSixWeeks').checked;
+            generateCalendarGrid();
+        }
+        
+        async function loadMonthData() {
+            try {
+                const response = await fetch(`/calendar?year=${currentYear}&month=${currentMonth}`);
+                const html = await response.text();
+                
+                // Extract meals data from response (simplified - in real app you'd return JSON)
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const scriptContent = tempDiv.querySelector('script').textContent;
+                const mealsMatch = scriptContent.match(/mealsData = (.*?);/);
+                if (mealsMatch) {
+                    mealsData = JSON.parse(mealsMatch[1]);
+                }
+                
+                generateCalendarGrid();
+                updateMonthTitle();
+                updateWeekView();
+            } catch (error) {
+                console.error('Error loading month data:', error);
+            }
+        }
+        
+        function updateWeekView() {
+            // Set current week to first week of current month
+            currentWeekStart = new Date(currentYear, currentMonth - 1, 1);
+            currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay());
+            
+            generateWeekView();
+        }
+        
+        function generateWeekView() {
+            const weekView = document.getElementById('weekView');
+            const weekTitle = document.getElementById('currentWeekTitle');
+            
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(currentWeekStart.getDate() + 6);
+            
+            weekTitle.textContent = `${currentWeekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+            
+            let weekHtml = '';
+            for (let i = 0; i < 7; i++) {
+                const currentDay = new Date(currentWeekStart);
+                currentDay.setDate(currentWeekStart.getDate() + i);
+                
+                const isToday = currentDay.toDateString() === new Date().toDateString();
+                
+                weekHtml += `
+                    <div class="week-day ${isToday ? 'today' : ''}">
+                        <div class="week-day-header">
+                            <div class="week-day-name">
+                                ${currentDay.toLocaleDateString('en-US', { weekday: 'long' })}
+                            </div>
+                            <div class="week-day-date">
+                                ${currentDay.toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div class="day-meals">
+                            ${generateDayMeals(currentDay)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            weekView.innerHTML = weekHtml;
+        }
+        
+        function previousWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            generateWeekView();
+        }
+        
+        function nextWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            generateWeekView();
+        }
+        
+        function viewMeal(mealId) {
+            window.location.href = `/meals/${mealId}`;
+        }
+        
+        // Auto-scroll for 6-week months (advanced feature for later implementation)
+        function autoScrollCalendar() {
+            // This would implement the auto-scroll feature when first week passes
+            // For now, it's a placeholder for future enhancement
+        }
+    </script>
+</body>
+</html>

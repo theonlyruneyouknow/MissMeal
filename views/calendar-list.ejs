@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List View - Missionary Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Card View</a>
+                <a href="/calendar" class="nav-link">Calendar</a>
+                <a href="/calendar/list" class="nav-link active">List View</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link">Families</a>
+                <a href="/missionaries" class="nav-link">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="list-controls">
+            <div class="date-navigation">
+                <button onclick="previousPeriod()" class="btn btn-secondary">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                
+                <div class="period-selector">
+                    <select id="periodType" onchange="changePeriodType()">
+                        <option value="week">This Week</option>
+                        <option value="month" selected>This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="all">All Upcoming</option>
+                    </select>
+                    
+                    <input type="month" id="monthPicker" onchange="changeMonth()" style="display: none;">
+                </div>
+                
+                <button onclick="nextPeriod()" class="btn btn-secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="list-actions">
+                <div class="filter-controls">
+                    <select id="statusFilter" onchange="filterMeals()">
+                        <option value="all">All Meals</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="unassigned">Need Family</option>
+                    </select>
+                    
+                    <select id="typeFilter" onchange="filterMeals()">
+                        <option value="all">All Types</option>
+                        <option value="dining">Dining with Family</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="pickup">Pickup</option>
+                    </select>
+                </div>
+                
+                <button onclick="goToToday()" class="btn btn-primary">
+                    <i class="fas fa-calendar-day"></i> Today
+                </button>
+                
+                <a href="/meals/new" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add Meal
+                </a>
+            </div>
+        </div>
+
+        <div class="meals-list-container">
+            <div class="list-header">
+                <div class="header-cell date-col">Date & Time</div>
+                <div class="header-cell missionaries-col">Companionship</div>
+                <div class="header-cell family-col">Family</div>
+                <div class="header-cell type-col">Meal Type</div>
+                <div class="header-cell actions-col">Actions</div>
+            </div>
+            
+            <div class="meals-list" id="mealsList">
+                <% if (meals && meals.length > 0) { %>
+                    <% let currentDate = null; %>
+                    <% meals.forEach(meal => { %>
+                        <% const mealDate = new Date(meal.date).toDateString(); %>
+                        
+                        <% if (currentDate !== mealDate) { %>
+                            <% currentDate = mealDate; %>
+                            <div class="date-separator">
+                                <div class="date-info">
+                                    <div class="date-display">
+                                        <%= new Date(meal.date).toLocaleDateString('en-US', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        }) %>
+                                    </div>
+                                    <div class="date-count">
+                                        <%= meals.filter(m => new Date(m.date).toDateString() === mealDate).length %> 
+                                        meal<%= meals.filter(m => new Date(m.date).toDateString() === mealDate).length > 1 ? 's' : '' %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                        
+                        <div class="meal-row <%= meal.isAssigned ? 'assigned' : 'unassigned' %> <%= meal.deliveryType %>" 
+                             data-meal-id="<%= meal._id %>" 
+                             data-status="<%= meal.isAssigned ? 'assigned' : 'unassigned' %>"
+                             data-type="<%= meal.deliveryType %>">
+                            
+                            <div class="meal-cell date-col">
+                                <div class="time-display">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="time"><%= meal.time %></span>
+                                </div>
+                                <div class="date-badge">
+                                    <%= new Date(meal.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+                                </div>
+                            </div>
+                            
+                            <div class="meal-cell missionaries-col">
+                                <% if (meal.companionship && meal.companionship.length > 0) { %>
+                                    <div class="companionship-info">
+                                        <div class="missionaries-names">
+                                            <%= meal.companionship.map(m => m.fullName).join(' & ') %>
+                                        </div>
+                                        <div class="companionship-area">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <%= meal.companionship[0].companionshipArea %>
+                                        </div>
+                                        <div class="contact-info">
+                                            <% meal.companionship.forEach(missionary => { %>
+                                                <a href="tel:<%= missionary.phoneNumber %>" class="contact-link">
+                                                    <i class="fas fa-phone"></i> <%= missionary.phoneNumber %>
+                                                </a>
+                                            <% }); %>
+                                        </div>
+                                    </div>
+                                <% } else { %>
+                                    <div class="no-missionaries">No missionaries assigned</div>
+                                <% } %>
+                            </div>
+                            
+                            <div class="meal-cell family-col">
+                                <% if (meal.family && meal.isAssigned) { %>
+                                    <div class="family-info assigned">
+                                        <div class="family-name">
+                                            <i class="fas fa-home"></i>
+                                            <strong><%= meal.family.familyName %></strong>
+                                        </div>
+                                        <div class="family-contact">
+                                            <%= meal.family.contactName %>
+                                        </div>
+                                        <div class="family-phone">
+                                            <a href="tel:<%= meal.family.phoneNumber %>" class="contact-link">
+                                                <i class="fas fa-phone"></i> <%= meal.family.phoneNumber %>
+                                            </a>
+                                        </div>
+                                        <% if (meal.family.email) { %>
+                                            <div class="family-email">
+                                                <a href="mailto:<%= meal.family.email %>" class="contact-link">
+                                                    <i class="fas fa-envelope"></i> Email
+                                                </a>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="family-info unassigned">
+                                        <div class="family-needed">
+                                            <i class="fas fa-question-circle"></i>
+                                            <strong>FAMILY NEEDED</strong>
+                                        </div>
+                                        <button onclick="showSignupModal('<%= meal._id %>')" class="btn btn-small btn-primary">
+                                            Sign Up Family
+                                        </button>
+                                    </div>
+                                <% } %>
+                            </div>
+                            
+                            <div class="meal-cell type-col">
+                                <div class="meal-type <%= meal.deliveryType %>">
+                                    <i class="fas fa-<%= meal.deliveryType === 'pickup' ? 'hand-holding' : meal.deliveryType === 'delivery' ? 'truck' : 'users' %>"></i>
+                                    <span class="type-text">
+                                        <%= meal.deliveryType === 'pickup' ? 'Pickup' : 
+                                            meal.deliveryType === 'delivery' ? 'Delivery' : 
+                                            'Dining with Family' %>
+                                    </span>
+                                </div>
+                                
+                                <% if (meal.notes) { %>
+                                    <div class="meal-notes">
+                                        <i class="fas fa-sticky-note"></i>
+                                        <%= meal.notes.length > 50 ? meal.notes.substring(0, 50) + '...' : meal.notes %>
+                                    </div>
+                                <% } %>
+                            </div>
+                            
+                            <div class="meal-cell actions-col">
+                                <div class="action-buttons">
+                                    <a href="/meals/<%= meal._id %>" class="btn btn-small btn-primary" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/meals/<%= meal._id %>/edit" class="btn btn-small btn-secondary" title="Edit Meal">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <% if (meal.family && !meal.reminderSent) { %>
+                                        <button onclick="sendReminder('<%= meal._id %>')" class="btn btn-small btn-warning" title="Send Reminder">
+                                            <i class="fas fa-bell"></i>
+                                        </button>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-meals">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No meals scheduled</h3>
+                        <p>No meals found for the selected period. Click "Add Meal" to schedule new meals.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="meal-summary">
+            <div class="summary-card">
+                <div class="summary-icon assigned">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-number" id="assignedCount">0</div>
+                    <div class="summary-label">Assigned Meals</div>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-icon unassigned">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-number" id="unassignedCount">0</div>
+                    <div class="summary-label">Need Family</div>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-icon dining">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-number" id="diningCount">0</div>
+                    <div class="summary-label">Dining with Family</div>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-icon total">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-number" id="totalCount">0</div>
+                    <div class="summary-label">Total Meals</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .list-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .period-selector select,
+        .period-selector input {
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .list-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .filter-controls select {
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+        }
+        
+        .meals-list-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .list-header {
+            display: grid;
+            grid-template-columns: 150px 1fr 1fr 120px 100px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .header-cell {
+            padding: 1rem;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-cell:last-child {
+            border-right: none;
+        }
+        
+        .date-separator {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .date-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .date-display {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .date-count {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .meal-row {
+            display: grid;
+            grid-template-columns: 150px 1fr 1fr 120px 100px;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .meal-row:hover {
+            background: #f8f9fa;
+        }
+        
+        .meal-row.assigned {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .meal-row.unassigned {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .meal-cell {
+            padding: 1rem;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .meal-cell:last-child {
+            border-right: none;
+        }
+        
+        .time-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .date-badge {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .companionship-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .missionaries-names {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .companionship-area {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+        
+        .contact-link {
+            font-size: 0.75rem;
+            color: #3498db;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .contact-link:hover {
+            color: #2980b9;
+        }
+        
+        .family-info.assigned {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .family-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .family-contact {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .family-info.unassigned {
+            text-align: center;
+            color: #e74c3c;
+        }
+        
+        .family-needed {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .meal-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meal-type.dining {
+            color: #9b59b6;
+        }
+        
+        .meal-type.delivery {
+            color: #3498db;
+        }
+        
+        .meal-type.pickup {
+            color: #f39c12;
+        }
+        
+        .type-text {
+            font-weight: 500;
+        }
+        
+        .meal-notes {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .no-meals {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #7f8c8d;
+        }
+        
+        .no-meals i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #bdc3c7;
+        }
+        
+        .meal-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .summary-icon.assigned {
+            background: #27ae60;
+        }
+        
+        .summary-icon.unassigned {
+            background: #e74c3c;
+        }
+        
+        .summary-icon.dining {
+            background: #9b59b6;
+        }
+        
+        .summary-icon.total {
+            background: #3498db;
+        }
+        
+        .summary-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .summary-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .list-header,
+            .meal-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            
+            .meal-cell {
+                border-right: none;
+                border-bottom: 1px solid #f0f0f0;
+                padding: 0.75rem;
+            }
+            
+            .meal-cell:last-child {
+                border-bottom: none;
+            }
+            
+            .header-cell {
+                display: none;
+            }
+            
+            .list-controls {
+                flex-direction: column;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .filter-controls select {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        let currentPeriod = 'month';
+        let currentDate = new Date();
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSummaryStats();
+            setupFilters();
+        });
+        
+        function updateSummaryStats() {
+            const meals = document.querySelectorAll('.meal-row');
+            const assigned = document.querySelectorAll('.meal-row.assigned').length;
+            const unassigned = document.querySelectorAll('.meal-row.unassigned').length;
+            const dining = document.querySelectorAll('.meal-row.dining').length;
+            const total = meals.length;
+            
+            document.getElementById('assignedCount').textContent = assigned;
+            document.getElementById('unassignedCount').textContent = unassigned;
+            document.getElementById('diningCount').textContent = dining;
+            document.getElementById('totalCount').textContent = total;
+        }
+        
+        function filterMeals() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const meals = document.querySelectorAll('.meal-row');
+            
+            meals.forEach(meal => {
+                let showMeal = true;
+                
+                if (statusFilter !== 'all' && !meal.dataset.status.includes(statusFilter)) {
+                    showMeal = false;
+                }
+                
+                if (typeFilter !== 'all' && !meal.dataset.type.includes(typeFilter)) {
+                    showMeal = false;
+                }
+                
+                meal.style.display = showMeal ? 'grid' : 'none';
+            });
+            
+            updateSummaryStats();
+        }
+        
+        function changePeriodType() {
+            currentPeriod = document.getElementById('periodType').value;
+            // In a real implementation, this would reload data for the selected period
+            console.log('Changed to period:', currentPeriod);
+        }
+        
+        function previousPeriod() {
+            // Navigate to previous period based on currentPeriod type
+            window.location.href = `/calendar/list?period=${currentPeriod}&direction=prev`;
+        }
+        
+        function nextPeriod() {
+            // Navigate to next period based on currentPeriod type
+            window.location.href = `/calendar/list?period=${currentPeriod}&direction=next`;
+        }
+        
+        function goToToday() {
+            window.location.href = '/calendar/list';
+        }
+        
+        function showSignupModal(mealId) {
+            // This would show the family signup modal
+            alert('Family signup modal would open for meal: ' + mealId);
+        }
+        
+        async function sendReminder(mealId) {
+            try {
+                const response = await fetch(`/text/remind-family/${mealId}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                alert(result.message);
+                if (result.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Error sending reminder');
+            }
+        }
+        
+        function setupFilters() {
+            // Setup any additional filter functionality
+        }
+    </script>
+</body>
+</html>

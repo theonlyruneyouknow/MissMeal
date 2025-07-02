@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ward Families - Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Calendar</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link active">Families</a>
+                <a href="/missionaries" class="nav-link">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-header">
+            <h2>Ward Families</h2>
+            <div class="header-actions">
+                <a href="/families/new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Family
+                </a>
+            </div>
+        </div>
+
+        <% if (families && families.length > 0) { %>
+            <div class="families-grid">
+                <% families.forEach(family => { %>
+                    <div class="family-card <%= family.isActive ? 'active' : 'inactive' %>">
+                        <div class="family-header">
+                            <h4><%= family.familyName %></h4>
+                            <span class="status-badge <%= family.isActive ? 'active' : 'inactive' %>">
+                                <%= family.isActive ? 'Active' : 'Inactive' %>
+                            </span>
+                        </div>
+                        
+                        <div class="family-info">
+                            <div class="info-item">
+                                <i class="fas fa-user"></i>
+                                <span><strong>Contact:</strong> <%= family.contactName %></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <span><%= family.phoneNumber %></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-envelope"></i>
+                                <span><%= family.email %></span>
+                            </div>
+                            
+                            <% if (family.address && (family.address.street || family.address.city)) { %>
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>
+                                        <%= family.address.street ? family.address.street + ', ' : '' %>
+                                        <%= family.address.city || '' %>
+                                        <%= family.address.state ? ', ' + family.address.state : '' %>
+                                    </span>
+                                </div>
+                            <% } %>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-<%= family.preferredDeliveryType === 'pickup' ? 'hand-holding' : family.preferredDeliveryType === 'delivery' ? 'truck' : family.preferredDeliveryType === 'dining' ? 'users' : 'exchange-alt' %>"></i>
+                                <span><strong>Prefers:</strong> 
+                                    <%= family.preferredDeliveryType === 'pickup' ? 'Pickup' : 
+                                        family.preferredDeliveryType === 'delivery' ? 'Delivery' : 
+                                        family.preferredDeliveryType === 'dining' ? 'Dining with Family' :
+                                        'Any Option' %>
+                                </span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-calendar-check"></i>
+                                <span><strong>Max meals/month:</strong> <%= family.maxMealsPerMonth || 2 %></span>
+                            </div>
+                            
+                            <% if (family.availableDays && family.availableDays.length > 0) { %>
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span><strong>Available:</strong> <%= family.availableDays.join(', ') %></span>
+                                </div>
+                            <% } %>
+                            
+                            <% if (family.allergies) { %>
+                                <div class="info-item allergies">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span><strong>Allergies:</strong> <%= family.allergies %></span>
+                                </div>
+                            <% } %>
+                            
+                            <% if (family.notes) { %>
+                                <div class="info-item notes">
+                                    <i class="fas fa-sticky-note"></i>
+                                    <span><%= family.notes %></span>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="family-actions">
+                            <a href="/families/<%= family._id %>" class="btn btn-small">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="/families/<%= family._id %>/edit" class="btn btn-small">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="no-families">
+                <i class="fas fa-home"></i>
+                <h3>No families added yet</h3>
+                <p>Click "Add New Family" to get started.</p>
+            </div>
+        <% } %>
+    </div>
+
+    <style>
+        .families-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .family-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-left: 5px solid #27ae60;
+        }
+        
+        .family-card.inactive {
+            border-left-color: #95a5a6;
+            opacity: 0.7;
+        }
+        
+        .family-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .family-header {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .family-header h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.active {
+            background: #2ecc71;
+        }
+        
+        .status-badge.inactive {
+            background: #95a5a6;
+        }
+        
+        .family-info {
+            padding: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .info-item i {
+            color: #7f8c8d;
+            width: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .info-item.allergies i {
+            color: #e74c3c;
+        }
+        
+        .info-item.notes {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid #f39c12;
+            font-style: italic;
+        }
+        
+        .family-actions {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .no-families {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #7f8c8d;
+        }
+        
+        .no-families i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #bdc3c7;
+        }
+        
+        .no-families h3 {
+            margin-bottom: 0.5rem;
+            color: #34495e;
+        }
+    </style>
+</body>
+</html>

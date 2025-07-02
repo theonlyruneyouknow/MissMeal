@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Details - Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Calendar</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link active">Families</a>
+                <a href="/missionaries" class="nav-link">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-header">
+            <h2>Family Details</h2>
+            <div class="header-actions">
+                <a href="/families" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Families
+                </a>
+                <a href="/families/<%= family._id %>/edit" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Family
+                </a>
+            </div>
+        </div>
+
+        <div class="family-details-container">
+            <!-- Main Information Card -->
+            <div class="detail-card main-info">
+                <div class="card-header <%= family.isActive ? 'active' : 'inactive' %>">
+                    <div class="family-name-large">
+                        <h3><%= family.familyName %></h3>
+                        <span class="status-badge <%= family.isActive ? 'active' : 'inactive' %>">
+                            <i class="fas fa-<%= family.isActive ? 'check-circle' : 'times-circle' %>"></i>
+                            <%= family.isActive ? 'Active' : 'Inactive' %>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-content">
+                    <div class="contact-info">
+                        <div class="contact-item primary">
+                            <i class="fas fa-user"></i>
+                            <div>
+                                <strong>Primary Contact</strong>
+                                <span><%= family.contactName %></span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Phone Number</strong>
+                                <span><%= family.phoneNumber %></span>
+                                <a href="tel:<%= family.phoneNumber %>" class="btn btn-small btn-success">
+                                    <i class="fas fa-phone"></i> Call
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email Address</strong>
+                                <span><%= family.email %></span>
+                                <a href="mailto:<%= family.email %>" class="btn btn-small btn-primary">
+                                    <i class="fas fa-envelope"></i> Email
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <% if (family.address && (family.address.street || family.address.city)) { %>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <strong>Address</strong>
+                                    <span>
+                                        <%= family.address.street ? family.address.street + '<br>' : '' %>
+                                        <%= family.address.city || '' %>
+                                        <%= family.address.state ? ', ' + family.address.state : '' %>
+                                        <%= family.address.zipCode ? ' ' + family.address.zipCode : '' %>
+                                    </span>
+                                    <% if (family.address.street && family.address.city) { %>
+                                        <a href="https://maps.google.com?q=<%= encodeURIComponent(family.address.street + ', ' + family.address.city + (family.address.state ? ', ' + family.address.state : '')) %>" 
+                                           target="_blank" class="btn btn-small btn-secondary">
+                                            <i class="fas fa-map"></i> Directions
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Preferences Card -->
+            <div class="detail-card">
+                <div class="card-header preferences">
+                    <h3><i class="fas fa-cog"></i> Meal Preferences</h3>
+                </div>
+                
+                <div class="card-content">
+                    <div class="preferences-grid">
+                        <div class="preference-item">
+                            <div class="preference-header">
+                                <i class="fas fa-<%= family.preferredDeliveryType === 'pickup' ? 'hand-holding' : family.preferredDeliveryType === 'delivery' ? 'truck' : family.preferredDeliveryType === 'dining' ? 'users' : 'exchange-alt' %>"></i>
+                                <strong>Delivery Preference</strong>
+                            </div>
+                            <span class="preference-value">
+                                <%= family.preferredDeliveryType === 'pickup' ? 'Pickup from family' : 
+                                    family.preferredDeliveryType === 'delivery' ? 'Family will deliver' : 
+                                    family.preferredDeliveryType === 'dining' ? 'Sisters dine with family' :
+                                    'Any option works' %>
+                            </span>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <div class="preference-header">
+                                <i class="fas fa-calendar-check"></i>
+                                <strong>Max Meals Per Month</strong>
+                            </div>
+                            <span class="preference-value">
+                                <%= family.maxMealsPerMonth === 99 ? 'No limit' : family.maxMealsPerMonth + ' meal(s)' %>
+                            </span>
+                        </div>
+                        
+                        <% if (family.availableDays && family.availableDays.length > 0) { %>
+                            <div class="preference-item full-width">
+                                <div class="preference-header">
+                                    <i class="fas fa-calendar"></i>
+                                    <strong>Available Days</strong>
+                                </div>
+                                <div class="available-days">
+                                    <% family.availableDays.forEach(day => { %>
+                                        <span class="day-badge"><%= day %></span>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Considerations Card -->
+            <% if (family.allergies || family.notes || (family.unavailableDates && family.unavailableDates.length > 0)) { %>
+                <div class="detail-card">
+                    <div class="card-header considerations">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Special Considerations</h3>
+                    </div>
+                    
+                    <div class="card-content">
+                        <% if (family.allergies) { %>
+                            <div class="consideration-item allergies">
+                                <div class="consideration-header">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Family Allergies</strong>
+                                </div>
+                                <p><%= family.allergies %></p>
+                            </div>
+                        <% } %>
+                        
+                        <% if (family.notes) { %>
+                            <div class="consideration-item notes">
+                                <div class="consideration-header">
+                                    <i class="fas fa-sticky-note"></i>
+                                    <strong>Additional Notes</strong>
+                                </div>
+                                <p><%= family.notes %></p>
+                            </div>
+                        <% } %>
+                        
+                        <% if (family.unavailableDates && family.unavailableDates.length > 0) { %>
+                            <div class="consideration-item unavailable">
+                                <div class="consideration-header">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <strong>Unavailable Dates</strong>
+                                </div>
+                                <div class="unavailable-dates-list">
+                                    <% family.unavailableDates.forEach(date => { %>
+                                        <span class="unavailable-date"><%= new Date(date).toLocaleDateString() %></span>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Timeline Card -->
+            <div class="detail-card">
+                <div class="card-header timeline">
+                    <h3><i class="fas fa-history"></i> Family Timeline</h3>
+                </div>
+                
+                <div class="card-content">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker added">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <strong>Added to System</strong>
+                                <span><%= new Date(family.createdAt).toLocaleDateString() %></span>
+                            </div>
+                        </div>
+                        
+                        <% if (!family.isActive) { %>
+                            <div class="timeline-item">
+                                <div class="timeline-marker inactive">
+                                    <i class="fas fa-pause"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>Marked Inactive</strong>
+                                    <span>No longer providing meals</span>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="detail-card">
+                <div class="card-header actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                </div>
+                
+                <div class="card-content">
+                    <div class="quick-actions">
+                        <button onclick="sendFamilyMessage()" class="btn btn-primary">
+                            <i class="fas fa-comment"></i> Send Message
+                        </button>
+                        
+                        <button onclick="assignToMeal()" class="btn btn-success">
+                            <i class="fas fa-utensils"></i> Assign to Meal
+                        </button>
+                        
+                        <a href="tel:<%= family.phoneNumber %>" class="btn btn-warning">
+                            <i class="fas fa-phone"></i> Call Family
+                        </a>
+                        
+                        <a href="mailto:<%= family.email %>" class="btn btn-secondary">
+                            <i class="fas fa-envelope"></i> Send Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .family-details-container {
+            display: grid;
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .detail-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header.active {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+        
+        .card-header.inactive {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+        
+        .card-header.preferences {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .card-header.considerations {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .card-header.timeline {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+        
+        .card-header.actions {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .family-name-large {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .family-name-large h3 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .status-badge.active {
+            background: #2ecc71;
+        }
+        
+        .status-badge.inactive {
+            background: #e74c3c;
+        }
+        
+        .card-content {
+            padding: 2rem;
+        }
+        
+        .contact-info {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .contact-item.primary {
+            border-left-color: #27ae60;
+        }
+        
+        .contact-item i {
+            color: #3498db;
+            font-size: 1.2rem;
+            width: 20px;
+            flex-shrink: 0;
+        }
+        
+        .contact-item.primary i {
+            color: #27ae60;
+        }
+        
+        .contact-item div {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .contact-item strong {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .contact-item span {
+            color: #7f8c8d;
+        }
+        
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .preference-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .preference-item.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .preference-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .preference-header i {
+            color: #3498db;
+        }
+        
+        .preference-header strong {
+            color: #2c3e50;
+        }
+        
+        .preference-value {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .available-days {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .day-badge {
+            background: #3498db;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .consideration-item {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .consideration-item.allergies {
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .consideration-item.notes {
+            background: #fff3cd;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .consideration-item.unavailable {
+            background: #f8d7da;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .consideration-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .consideration-item.allergies .consideration-header i {
+            color: #e74c3c;
+        }
+        
+        .consideration-item.notes .consideration-header i {
+            color: #f39c12;
+        }
+        
+        .consideration-item.unavailable .consideration-header i {
+            color: #e74c3c;
+        }
+        
+        .consideration-item p {
+            margin: 0;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .unavailable-dates-list {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .unavailable-date {
+            background: #e74c3c;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .timeline {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .timeline-marker.added {
+            background: #27ae60;
+        }
+        
+        .timeline-marker.inactive {
+            background: #95a5a6;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-content strong {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .timeline-content span {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .family-name-large {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .contact-item div {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            
+            .preferences-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        const familyId = '<%= family._id %>';
+        
+        function sendFamilyMessage() {
+            // This would integrate with the messaging system
+            alert('Messaging feature coming soon! For now, you can call or email the family directly.');
+        }
+        
+        function assignToMeal() {
+            // This would redirect to meal assignment
+            window.location.href = '/meals/new?family=' + familyId;
+        }
+    </script>
+</body>
+</html>

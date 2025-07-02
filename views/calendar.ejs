@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sister Missionary Meal Calendar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Calendar</a>
+                <a href="/meals" class="nav-link">Meals</a>
+                <a href="/families" class="nav-link">Families</a>
+                <a href="/missionaries" class="nav-link">Missionaries</a>
+                <a href="/text" class="nav-link">Messages</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-header">
+            <h2>Upcoming Meals</h2>
+            <div class="header-actions">
+                <a href="/meals/new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Schedule New Meal
+                </a>
+                <button onclick="refreshCalendar()" class="btn btn-secondary">
+                    <i class="fas fa-refresh"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="calendar-grid">
+            <% if (meals && meals.length > 0) { %>
+                <% meals.forEach(meal => { %>
+                    <div class="meal-card <%= meal.isAssigned ? 'assigned' : 'unassigned' %>">
+                        <div class="meal-date">
+                            <div class="date-day">
+                                <%= moment(meal.date).format('ddd') %>
+                            </div>
+                            <div class="date-number">
+                                <%= moment(meal.date).format('DD') %>
+                            </div>
+                            <div class="date-month">
+                                <%= moment(meal.date).format('MMM') %>
+                            </div>
+                        </div>
+                        
+                        <div class="meal-info">
+                            <div class="meal-time">
+                                <i class="fas fa-clock"></i> <%= meal.time %>
+                            </div>
+                            
+                            <div class="meal-missionaries">
+                                <i class="fas fa-users"></i>
+                                <% if (meal.companionship && meal.companionship.length > 0) { %>
+                                    <%= meal.companionship.map(m => m.fullName).join(' & ') %>
+                                    <br>
+                                    <small><%= meal.companionship[0].companionshipArea %></small>
+                                <% } else { %>
+                                    No missionaries assigned
+                                <% } %>
+                            </div>
+                            
+                            <div class="meal-delivery">
+                                <i class="fas fa-<%= meal.deliveryType === 'pickup' ? 'hand-holding' : meal.deliveryType === 'delivery' ? 'truck' : 'users' %>"></i>
+                                <%= meal.deliveryType === 'pickup' ? 'Pickup' : 
+                                    meal.deliveryType === 'delivery' ? 'Delivery' : 
+                                    'Dining with Family' %>
+                            </div>
+                            
+                            <% if (meal.family) { %>
+                                <div class="meal-family assigned">
+                                    <i class="fas fa-home"></i>
+                                    <strong><%= meal.family.familyName %></strong>
+                                    <br>
+                                    <small>Contact: <%= meal.family.contactName %></small>
+                                    <br>
+                                    <small><%= meal.family.phoneNumber %></small>
+                                </div>
+                            <% } else { %>
+                                <div class="meal-family unassigned">
+                                    <i class="fas fa-question-circle"></i>
+                                    <strong>FAMILY NEEDED</strong>
+                                    <button onclick="showSignupModal('<%= meal._id %>')" class="btn btn-primary btn-small">
+                                        Sign Up to Provide
+                                    </button>
+                                </div>
+                            <% } %>
+                            
+                            <% if (meal.notes) { %>
+                                <div class="meal-notes">
+                                    <i class="fas fa-sticky-note"></i>
+                                    <%= meal.notes %>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="meal-actions">
+                            <a href="/meals/<%= meal._id %>" class="btn btn-small">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="/meals/<%= meal._id %>/edit" class="btn btn-small">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-meals">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No meals scheduled</h3>
+                    <p>Click "Schedule New Meal" to get started.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sign Up to Provide Meal</h3>
+                <button onclick="closeSignupModal()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="signupForm">
+                <input type="hidden" id="mealId" name="mealId">
+                
+                <div class="form-group">
+                    <label for="familyName">Family Name:</label>
+                    <input type="text" id="familyName" name="familyName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactName">Contact Person:</label>
+                    <input type="text" id="contactName" name="contactName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number:</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="deliveryType">Meal Preference:</label>
+                    <select id="deliveryType" name="deliveryType">
+                        <option value="dining">Sisters dine with our family</option>
+                        <option value="delivery">I'll deliver the meal</option>
+                        <option value="pickup">They can pick up the meal</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeSignupModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/calendar.js"></script>
+</body>
+</html>

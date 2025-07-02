@@ -1,0 +1,20 @@
+# Environment Configuration for Missionary Meal Calendar
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/missionary-meals
+
+# Twilio Configuration (for SMS functionality)
+# Sign up at https://www.twilio.com to get these credentials
+TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
+TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
+TWILIO_PHONE_NUMBER=+1234567890
+
+# Optional: Additional Configuration
+# SESSION_SECRET=your_session_secret_here
+# EMAIL_SERVICE=gmail
+# EMAIL_USER=your_email@gmail.com
+# EMAIL_PASS=your_app_password
