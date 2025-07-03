@@ -121,10 +121,15 @@
                 <div class="legend-color unassigned"></div>
                 <span>Family Needed</span>
             </div>
+            <div class="legend-item">
+                <div class="legend-color empty-clickable"></div>
+                <span>Click to Schedule Meal</span>
+            </div>
         </div>
     </div>
 
     <style>
+        /* ...existing styles... */
         .calendar-controls {
             display: flex;
             justify-content: space-between;
@@ -249,6 +254,7 @@
             flex-direction: column;
             position: relative;
             background: #fff;
+            transition: all 0.2s ease;
         }
         
         .calendar-day.other-month {
@@ -262,6 +268,42 @@
             border-width: 2px;
         }
         
+        .calendar-day.empty-clickable {
+            cursor: pointer;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            border: 2px dashed #3498db;
+        }
+        
+        .calendar-day.empty-clickable:hover {
+            background: linear-gradient(135deg, #e0f2ff 0%, #cce8ff 100%);
+            border-color: #2980b9;
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .calendar-day.empty-clickable .add-meal-prompt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            color: #3498db;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .calendar-day.empty-clickable:hover .add-meal-prompt {
+            opacity: 1;
+        }
+        
+        .calendar-day.empty-clickable .add-meal-prompt i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
         .day-number {
             font-weight: 600;
             color: #2c3e50;
@@ -271,6 +313,11 @@
         
         .calendar-day.other-month .day-number {
             color: #95a5a6;
+        }
+        
+        .calendar-day.empty-clickable .day-number {
+            color: #2980b9;
+            font-weight: 700;
         }
         
         .day-meals {
@@ -357,6 +404,19 @@
             border: 1px solid #e9ecef;
             border-radius: 8px;
             background: white;
+            position: relative;
+        }
+        
+        .week-day.empty-clickable {
+            cursor: pointer;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            border: 2px dashed #3498db;
+        }
+        
+        .week-day.empty-clickable:hover {
+            background: linear-gradient(135deg, #e0f2ff 0%, #cce8ff 100%);
+            border-color: #2980b9;
+            transform: scale(1.01);
         }
         
         .week-day-header {
@@ -421,6 +481,11 @@
         
         .legend-color.unassigned {
             background: #e74c3c;
+        }
+        
+        .legend-color.empty-clickable {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            border: 1px dashed #3498db;
         }
         
         /* Mobile Styles */
@@ -562,11 +627,26 @@
                     dayElement.classList.add('today');
                 }
                 
+                // Check if this date has meals
+                const dateStr = actualDate.toISOString().split('T')[0];
+                const dayMeals = mealsData.filter(meal => 
+                    meal.date.startsWith(dateStr)
+                );
+                const hasMeals = dayMeals.length > 0;
+                
+                // Only make current month dates without meals clickable
+                const isClickable = isCurrentMonth && !hasMeals && actualDate >= today;
+                
+                if (isClickable) {
+                    dayElement.classList.add('empty-clickable');
+                    dayElement.addEventListener('click', () => createMealForDate(actualDate));
+                }
+                
                 // Create day content
                 dayElement.innerHTML = `
                     <div class="day-number">${dayNumber}</div>
-                    <div class="day-meals" id="meals-${actualDate.toISOString().split('T')[0]}">
-                        ${generateDayMeals(actualDate)}
+                    <div class="day-meals" id="meals-${dateStr}">
+                        ${hasMeals ? generateDayMeals(actualDate) : (isClickable ? generateAddMealPrompt() : '')}
                     </div>
                 `;
                 
@@ -592,6 +672,22 @@
                     </div>
                 </div>
             `).join('');
+        }
+        
+        function generateAddMealPrompt() {
+            return `
+                <div class="add-meal-prompt">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Click to Schedule</span>
+                </div>
+            `;
+        }
+        
+        function createMealForDate(date) {
+            // Format date as YYYY-MM-DD for the form
+            const formattedDate = date.toISOString().split('T')[0];
+            // Redirect to meal creation form with pre-filled date
+            window.location.href = `/meals/new?date=${formattedDate}`;
         }
         
         function updateMonthTitle() {
@@ -683,9 +779,14 @@
                 currentDay.setDate(currentWeekStart.getDate() + i);
                 
                 const isToday = currentDay.toDateString() === new Date().toDateString();
+                const dateStr = currentDay.toISOString().split('T')[0];
+                const dayMeals = mealsData.filter(meal => meal.date.startsWith(dateStr));
+                const hasMeals = dayMeals.length > 0;
+                const isClickable = !hasMeals && currentDay >= new Date();
                 
                 weekHtml += `
-                    <div class="week-day ${isToday ? 'today' : ''}">
+                    <div class="week-day ${isToday ? 'today' : ''} ${isClickable ? 'empty-clickable' : ''}" 
+                         ${isClickable ? `onclick="createMealForDate(new Date('${dateStr}'))"` : ''}>
                         <div class="week-day-header">
                             <div class="week-day-name">
                                 ${currentDay.toLocaleDateString('en-US', { weekday: 'long' })}
@@ -695,7 +796,7 @@
                             </div>
                         </div>
                         <div class="day-meals">
-                            ${generateDayMeals(currentDay)}
+                            ${hasMeals ? generateDayMeals(currentDay) : (isClickable ? generateAddMealPrompt() : '')}
                         </div>
                     </div>
                 `;
