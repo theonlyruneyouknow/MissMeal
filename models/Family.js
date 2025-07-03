@@ -25,7 +25,7 @@ const familySchema = new mongoose.Schema({
   },
   preferredDeliveryType: {
     type: String,
-    enum: ['pickup', 'delivery', 'either'],
+    enum: ['pickup', 'delivery', 'either', 'dining'],
     default: 'either'
   },
   availableDays: [{

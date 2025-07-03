@@ -296,6 +296,7 @@
     <script>
         // Set minimum date to today
         document.getElementById('date').min = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
         
         // Auto-select default time if none selected
         document.addEventListener('DOMContentLoaded', function() {

@@ -22,7 +22,7 @@ const mealSchema = new mongoose.Schema({
   },
   deliveryType: {
     type: String,
-    enum: ['pickup', 'delivery'],
+    enum: ['pickup', 'delivery', 'dining'],
     default: 'delivery'
   },
   notes: {
