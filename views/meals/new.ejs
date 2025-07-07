@@ -1,3 +1,4 @@
+<!-- views/meals/new.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,28 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+    <div style="background: #f0f0f0; padding: 10px; margin: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; border: 2px solid #ccc;">
+        <strong>🔍 DEBUG INFO for New Meal Form:</strong><br>
+        <strong>Selected Date:</strong> <%= typeof selectedDate !== 'undefined' && selectedDate ? selectedDate : 'NONE' %><br>
+        <strong>Companionships:</strong> <%= typeof companionships !== 'undefined' ? companionships.length : 'UNDEFINED' %><br>
+        <% if (typeof companionships !== 'undefined' && companionships && companionships.length > 0) { %>
+            <% companionships.forEach((comp, index) => { %>
+                &nbsp;&nbsp;• Companionship <%= index + 1 %>: 
+                Area: "<%= comp.area || 'No Area' %>" | 
+                Missionaries: <%= comp.missionaries ? comp.missionaries.length : 0 %><br>
+                <% if (comp.missionaries && comp.missionaries.length > 0) { %>
+                    <% comp.missionaries.forEach(m => { %>
+                        &nbsp;&nbsp;&nbsp;&nbsp;- <%= m.fullName || (m.firstName + ' ' + m.lastName) %><br>
+                    <% }); %>
+                <% } %>
+            <% }); %>
+        <% } else { %>
+            &nbsp;&nbsp;<span style="color: red;">❌ No companionships available or undefined!</span><br>
+        <% } %>
+        <strong>Families:</strong> <%= typeof families !== 'undefined' ? families.length : 'UNDEFINED' %><br>
+        <strong>Missionaries:</strong> <%= typeof missionaries !== 'undefined' ? missionaries.length : 'UNDEFINED' %>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
@@ -31,6 +54,14 @@
             </div>
         </div>
 
+        <!-- Show error if exists -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= error %>
+            </div>
+        <% } %>
+
         <div class="form-container">
             <form action="/meals" method="POST">
                 <div class="form-section">
@@ -39,7 +70,11 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="date">Date *</label>
-                            <input type="date" id="date" name="date" required>
+                            <input type="date" 
+                                   id="date" 
+                                   name="date" 
+                                   value="<%= selectedDate || new Date().toISOString().split('T')[0] %>"
+                                   required>
                         </div>
                         
                         <div class="form-group">
@@ -62,22 +97,46 @@
                     <h3><i class="fas fa-users"></i> Sister Missionaries</h3>
                     
                     <div class="form-group">
-                        <label for="companionship">Select Missionaries *</label>
-                        <div class="missionary-selection">
-                            <% if (missionaries && missionaries.length > 0) { %>
-                                <% missionaries.forEach(missionary => { %>
-                                    <label class="missionary-option">
-                                        <input type="checkbox" name="companionship" value="<%= missionary._id %>">
-                                        <div class="missionary-card-small">
-                                            <strong><%= missionary.fullName %></strong>
-                                            <small><%= missionary.companionshipArea %></small>
+                        <label>Select Companionship:</label>
+                        <div class="companionship-selection">
+                            <% if (companionships && companionships.length > 0) { %>
+                                <% companionships.forEach(companionship => { %>
+                                    <label class="companionship-option">
+                                        <input type="radio" 
+                                               name="companionship" 
+                                               value="<%= companionship._id %>" 
+                                               required>
+                                        <div class="companionship-card">
+                                            <div class="companionship-area">
+                                                <strong><%= companionship.area || 'No Area Assigned' %></strong>
+                                            </div>
+                                            <div class="companionship-missionaries">
+                                                <% if (companionship.missionaries && companionship.missionaries.length > 0) { %>
+                                                    <% companionship.missionaries.forEach((missionary, index) => { %>
+                                                        <span class="missionary-name">
+                                                            <%= missionary.fullName || (missionary.firstName + ' ' + missionary.lastName) %>
+                                                        </span>
+                                                        <% if (index < companionship.missionaries.length - 1) { %> & <% } %>
+                                                    <% }); %>
+                                                <% } else { %>
+                                                    <span class="no-missionaries">No missionaries assigned</span>
+                                                <% } %>
+                                            </div>
+                                            <% if (companionship.phoneNumber) { %>
+                                                <div class="companionship-contact">
+                                                    <i class="fas fa-phone"></i> <%= companionship.phoneNumber %>
+                                                </div>
+                                            <% } %>
                                         </div>
                                     </label>
                                 <% }); %>
                             <% } else { %>
-                                <div class="no-missionaries">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <p>No missionaries available. <a href="/missionaries/new">Add missionaries first</a>.</p>
+                                <div class="no-companionships">
+                                    <p><i class="fas fa-exclamation-triangle"></i> No companionships available.</p>
+                                    <p>Please add companionships first before creating meals.</p>
+                                    <a href="/companionships/new" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add Companionship
+                                    </a>
                                 </div>
                             <% } %>
                         </div>
@@ -104,7 +163,7 @@
                         <label for="family">Assign Family</label>
                         <select id="family" name="family">
                             <option value="">Leave unassigned (families can sign up)</option>
-                            <% if (families && families.length > 0) { %>
+                            <% if (typeof families !== 'undefined' && families && families.length > 0) { %>
                                 <% families.forEach(family => { %>
                                     <option value="<%= family._id %>">
                                         <%= family.familyName %> - <%= family.contactName %>
@@ -113,6 +172,13 @@
                             <% } %>
                         </select>
                         <small class="form-help">Leave blank to allow families to sign up themselves</small>
+                        
+                        <% if (typeof families === 'undefined' || !families || families.length === 0) { %>
+                            <div class="info-message">
+                                <i class="fas fa-info-circle"></i>
+                                No families in database. <a href="/families/new">Add families</a> to assign them directly.
+                            </div>
+                        <% } %>
                     </div>
                 </div>
                 
@@ -127,9 +193,15 @@
                 
                 <div class="form-actions">
                     <a href="/meals" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Schedule Meal
-                    </button>
+                    <% if (typeof missionaries !== 'undefined' && missionaries && missionaries.length > 0) { %>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Schedule Meal
+                        </button>
+                    <% } else { %>
+                        <button type="button" class="btn btn-primary" disabled onclick="alert('Please add missionaries first')">
+                            <i class="fas fa-exclamation-triangle"></i> Add Missionaries First
+                        </button>
+                    <% } %>
                 </div>
             </form>
         </div>
@@ -270,6 +342,38 @@
             color: #e74c3c;
         }
         
+        .no-missionaries h4 {
+            color: #34495e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-message {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #1976d2;
+        }
+        
+        .info-message i {
+            margin-right: 0.5rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+        
         .form-actions {
             padding: 2rem;
             background: #f8f9fa;
@@ -295,8 +399,23 @@
 
     <script>
         // Set minimum date to today
-        document.getElementById('date').min = new Date().toISOString().split('T')[0];
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('date');
+        
+        // Set minimum date
+        dateInput.min = today;
+        
+        // Get selected date from server (safely)
+        const selectedDateFromServer = '<%= typeof selectedDate !== "undefined" && selectedDate ? selectedDate : "" %>';
+        
+        // Set default date - either from URL parameter or today
+        if (selectedDateFromServer && selectedDateFromServer.trim() !== '') {
+            console.log('Setting date from URL parameter:', selectedDateFromServer);
+            dateInput.value = selectedDateFromServer;
+        } else {
+            console.log('Setting date to today:', today);
+            dateInput.value = today;
+        }
         
         // Auto-select default time if none selected
         document.addEventListener('DOMContentLoaded', function() {
@@ -304,23 +423,23 @@
             if (!timeSelect.value) {
                 timeSelect.value = '6:00 PM';
             }
+            
+            // Log the final date value for debugging
+            console.log('Final date input value:', dateInput.value);
+            console.log('Selected date from server:', selectedDateFromServer || 'none');
         });
         
         // Validate form submission
         document.querySelector('form').addEventListener('submit', function(e) {
-            const selectedMissionaries = document.querySelectorAll('input[name="companionship"]:checked');
+            const selectedCompanionship = document.querySelector('input[name="companionship"]:checked');
             
-            if (selectedMissionaries.length === 0) {
+            if (!selectedCompanionship) {
                 e.preventDefault();
-                alert('Please select at least one missionary for this meal.');
+                alert('Please select a companionship for this meal.');
                 return false;
             }
             
-            if (selectedMissionaries.length > 4) {
-                e.preventDefault();
-                alert('Please select no more than 4 missionaries per meal.');
-                return false;
-            }
+            console.log('Form submitting with date:', dateInput.value);
         });
     </script>
 </body>

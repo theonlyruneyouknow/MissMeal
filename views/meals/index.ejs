@@ -42,9 +42,9 @@
                     <div class="meal-row <%= meal.isAssigned ? 'assigned' : 'unassigned' %>">
                         <div class="meal-date-column">
                             <div class="date-display">
-                                <div class="date-day"><%= moment(meal.date).format('ddd') %></div>
-                                <div class="date-number"><%= moment(meal.date).format('DD') %></div>
-                                <div class="date-month"><%= moment(meal.date).format('MMM') %></div>
+                                <div class="date-day"><%= new Date(meal.date).toLocaleDateString('en-US', { weekday: 'short' }) %></div>
+                                <div class="date-number"><%= new Date(meal.date).getDate() %></div>
+                                <div class="date-month"><%= new Date(meal.date).toLocaleDateString('en-US', { month: 'short' }) %></div>
                             </div>
                         </div>
                         
@@ -55,11 +55,27 @@
                             
                             <div class="meal-missionaries">
                                 <i class="fas fa-users"></i>
-                                <% if (meal.companionship && meal.companionship.length > 0) { %>
-                                    <%= meal.companionship.map(m => m.fullName).join(' & ') %>
-                                    <small>(<%= meal.companionship[0].companionshipArea %>)</small>
+                                <% if (meal.companionship && meal.companionship.missionaries && meal.companionship.missionaries.length > 0) { %>
+                                    <!-- NEW SYSTEM: Companionship with missionaries -->
+                                    <span class="missionary-names">
+                                        <%= meal.companionship.missionaries.map(m => m.fullName || (m.firstName + ' ' + m.lastName)).join(' & ') %>
+                                    </span>
+                                    <% if (meal.companionship.area) { %>
+                                        <small class="area-info">(<%= meal.companionship.area %>)</small>
+                                    <% } %>
+                                    <span class="system-indicator new">Companionship</span>
+                                <% } else if (meal.missionaries && meal.missionaries.length > 0) { %>
+                                    <!-- LEGACY SYSTEM: Individual missionaries -->
+                                    <span class="missionary-names">
+                                        <%= meal.missionaries.map(m => m.fullName || (m.firstName + ' ' + m.lastName)).join(' & ') %>
+                                    </span>
+                                    <% if (meal.missionaries[0] && meal.missionaries[0].companionshipArea) { %>
+                                        <small class="area-info">(<%= meal.missionaries[0].companionshipArea %>)</small>
+                                    <% } %>
+                                    <span class="system-indicator legacy">Individual</span>
                                 <% } else { %>
-                                    No missionaries assigned
+                                    <span class="no-assignment">No missionaries assigned</span>
+                                    <span class="system-indicator error">Missing Assignment</span>
                                 <% } %>
                             </div>
                             
@@ -67,8 +83,16 @@
                                 <i class="fas fa-<%= meal.deliveryType === 'pickup' ? 'hand-holding' : meal.deliveryType === 'delivery' ? 'truck' : 'users' %>"></i>
                                 <%= meal.deliveryType === 'pickup' ? 'Pickup' : 
                                     meal.deliveryType === 'delivery' ? 'Delivery' :
-                                    'Dining with Family' %>
+                                    meal.deliveryType === 'dining' ? 'Dining with Family' :
+                                    'Not Specified' %>
                             </div>
+
+                            <% if (meal.notes && meal.notes.trim()) { %>
+                                <div class="meal-notes">
+                                    <i class="fas fa-sticky-note"></i>
+                                    <span class="notes-preview"><%= meal.notes.length > 50 ? meal.notes.substring(0, 50) + '...' : meal.notes %></span>
+                                </div>
+                            <% } %>
                         </div>
                         
                         <div class="meal-family-column">
@@ -85,20 +109,25 @@
                                 <div class="family-needed">
                                     <i class="fas fa-question-circle"></i>
                                     <strong>FAMILY NEEDED</strong>
+                                    <small>Available for signup</small>
                                 </div>
                             <% } %>
                         </div>
                         
                         <div class="meal-actions-column">
-                            <a href="/meals/<%= meal._id %>" class="btn btn-small">
+                            <a href="/meals/<%= meal._id %>" class="btn btn-small" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="/meals/<%= meal._id %>/edit" class="btn btn-small">
+                            <a href="/meals/<%= meal._id %>/edit" class="btn btn-small" title="Edit Meal">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <% if (meal.family) { %>
-                                <button onclick="sendReminder('<%= meal._id %>')" class="btn btn-small btn-warning">
+                                <button onclick="sendReminder('<%= meal._id %>')" class="btn btn-small btn-warning" title="Send Reminder">
                                     <i class="fas fa-bell"></i>
+                                </button>
+                            <% } else { %>
+                                <button onclick="shareSignupLink('<%= meal._id %>')" class="btn btn-small btn-success" title="Share Signup Link">
+                                    <i class="fas fa-share"></i>
                                 </button>
                             <% } %>
                         </div>
@@ -179,15 +208,63 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
         
         .meal-details-column i {
             color: #7f8c8d;
             width: 16px;
+            flex-shrink: 0;
         }
         
-        .meal-missionaries small {
+        .missionary-names {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .area-info {
             color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .system-indicator {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .system-indicator.new {
+            background: linear-gradient(135deg, #d5f4e6 0%, #c8f7c5 100%);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .system-indicator.legacy {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+        
+        .system-indicator.error {
+            background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .no-assignment {
+            color: #e74c3c;
+            font-style: italic;
+        }
+        
+        .meal-notes {
+            font-size: 0.9rem;
+        }
+        
+        .notes-preview {
+            color: #6c757d;
             font-style: italic;
         }
         
@@ -205,6 +282,13 @@
             background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
             border-radius: 8px;
             border: 2px solid #e74c3c;
+        }
+        
+        .family-needed small {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.7rem;
+            color: #c0392b;
         }
         
         .family-contact {
@@ -242,6 +326,10 @@
                 flex-direction: row;
                 justify-content: center;
             }
+            
+            .meal-details-column > div {
+                justify-content: center;
+            }
         }
     </style>
 
@@ -271,6 +359,32 @@
                 button.innerHTML = originalText;
                 button.disabled = false;
             }
+        }
+
+        async function shareSignupLink(mealId) {
+            const signupUrl = `${window.location.origin}/meals/${mealId}/signup`;
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Meal Signup - Sister Missionary Meal Calendar',
+                        text: 'Sign up to provide a meal for our sister missionaries!',
+                        url: signupUrl
+                    });
+                } catch (error) {
+                    copyToClipboard(signupUrl);
+                }
+            } else {
+                copyToClipboard(signupUrl);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Signup link copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy this signup link:', text);
+            });
         }
     </script>
 </body>

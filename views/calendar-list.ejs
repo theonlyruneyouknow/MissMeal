@@ -75,7 +75,7 @@
         <div class="meals-list-container">
             <div class="list-header">
                 <div class="header-cell date-col">Date & Time</div>
-                <div class="header-cell missionaries-col">Companionship</div>
+                <div class="header-cell missionaries-col">Missionaries</div>
                 <div class="header-cell family-col">Family</div>
                 <div class="header-cell type-col">Meal Type</div>
                 <div class="header-cell actions-col">Actions</div>
@@ -123,25 +123,70 @@
                             </div>
                             
                             <div class="meal-cell missionaries-col">
-                                <% if (meal.companionship && meal.companionship.length > 0) { %>
-                                    <div class="companionship-info">
+                                <% if (meal.companionship && meal.companionship.missionaries && meal.companionship.missionaries.length > 0) { %>
+                                    <!-- NEW SYSTEM: Companionship with missionaries -->
+                                    <div class="companionship-info new-system">
+                                        <div class="system-indicator">
+                                            <span class="system-badge new">Companionship</span>
+                                        </div>
                                         <div class="missionaries-names">
-                                            <%= meal.companionship.map(m => m.fullName).join(' & ') %>
+                                            <%= meal.companionship.missionaries.map(m => m.fullName || (m.firstName + ' ' + m.lastName)).join(' & ') %>
                                         </div>
-                                        <div class="companionship-area">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <%= meal.companionship[0].companionshipArea %>
-                                        </div>
+                                        <% if (meal.companionship.area) { %>
+                                            <div class="companionship-area">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <%= meal.companionship.area %>
+                                            </div>
+                                        <% } %>
                                         <div class="contact-info">
-                                            <% meal.companionship.forEach(missionary => { %>
-                                                <a href="tel:<%= missionary.phoneNumber %>" class="contact-link">
-                                                    <i class="fas fa-phone"></i> <%= missionary.phoneNumber %>
-                                                </a>
+                                            <% meal.companionship.missionaries.forEach(missionary => { %>
+                                                <% if (missionary.phoneNumber) { %>
+                                                    <a href="tel:<%= missionary.phoneNumber %>" class="contact-link">
+                                                        <i class="fas fa-phone"></i> <%= missionary.phoneNumber %>
+                                                    </a>
+                                                <% } %>
+                                            <% }); %>
+                                        </div>
+                                    </div>
+                                <% } else if (meal.missionaries && meal.missionaries.length > 0) { %>
+                                    <!-- LEGACY SYSTEM: Individual missionaries -->
+                                    <div class="companionship-info legacy-system">
+                                        <div class="system-indicator">
+                                            <span class="system-badge legacy">Individual</span>
+                                        </div>
+                                        <div class="missionaries-names">
+                                            <%= meal.missionaries.map(m => m.fullName || (m.firstName + ' ' + m.lastName)).join(' & ') %>
+                                        </div>
+                                        <% if (meal.missionaries[0] && meal.missionaries[0].companionshipArea) { %>
+                                            <div class="companionship-area">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <%= meal.missionaries[0].companionshipArea %>
+                                            </div>
+                                        <% } %>
+                                        <div class="contact-info">
+                                            <% meal.missionaries.forEach(missionary => { %>
+                                                <% if (missionary.phoneNumber) { %>
+                                                    <a href="tel:<%= missionary.phoneNumber %>" class="contact-link">
+                                                        <i class="fas fa-phone"></i> <%= missionary.phoneNumber %>
+                                                    </a>
+                                                <% } %>
                                             <% }); %>
                                         </div>
                                     </div>
                                 <% } else { %>
-                                    <div class="no-missionaries">No missionaries assigned</div>
+                                    <!-- NO ASSIGNMENT -->
+                                    <div class="no-missionaries">
+                                        <div class="system-indicator">
+                                            <span class="system-badge error">No Assignment</span>
+                                        </div>
+                                        <div class="no-assignment-text">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            No missionaries assigned
+                                        </div>
+                                        <a href="/meals/<%= meal._id %>/edit" class="btn btn-small btn-primary">
+                                            <i class="fas fa-edit"></i> Assign
+                                        </a>
+                                    </div>
                                 <% } %>
                             </div>
                             
@@ -421,6 +466,51 @@
             gap: 0.25rem;
         }
         
+        .companionship-info.new-system {
+            border-left: 3px solid #27ae60;
+            padding-left: 0.5rem;
+            background: linear-gradient(135deg, #d5f4e6 0%, rgba(213, 244, 230, 0.3) 100%);
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+        
+        .companionship-info.legacy-system {
+            border-left: 3px solid #f39c12;
+            padding-left: 0.5rem;
+            background: linear-gradient(135deg, #fef9e7 0%, rgba(254, 249, 231, 0.3) 100%);
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+        
+        .system-indicator {
+            margin-bottom: 0.25rem;
+        }
+        
+        .system-badge {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+        
+        .system-badge.new {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .system-badge.legacy {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .system-badge.error {
+            background: #e74c3c;
+            color: white;
+        }
+        
         .missionaries-names {
             font-weight: 600;
             color: #2c3e50;
@@ -451,6 +541,24 @@
         
         .contact-link:hover {
             color: #2980b9;
+        }
+        
+        .no-missionaries {
+            text-align: center;
+            padding: 0.5rem;
+            border: 2px dashed #e74c3c;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #fadbd8 0%, rgba(250, 219, 216, 0.3) 100%);
+        }
+        
+        .no-assignment-text {
+            color: #e74c3c;
+            margin: 0.5rem 0;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
         }
         
         .family-info.assigned {

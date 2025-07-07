@@ -10,11 +10,11 @@ const mealSchema = new mongoose.Schema({
     required: true,
     default: '6:00 PM'
   },
-  companionship: [{
+  companionship: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Missionary',
+    ref: 'Companionship',
     required: true
-  }],
+  },
   family: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Family',

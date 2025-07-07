@@ -39,8 +39,8 @@
             <div class="detail-card main-info">
                 <div class="card-header <%= meal.isAssigned ? 'assigned' : 'unassigned' %>">
                     <div class="meal-date-large">
-                        <div class="date-day"><%= moment(meal.date).format('dddd') %></div>
-                        <div class="date-full"><%= moment(meal.date).format('MMMM Do, YYYY') %></div>
+                        <div class="date-day"><%= new Date(meal.date).toLocaleDateString('en-US', { weekday: 'long' }) %></div>
+                        <div class="date-full"><%= new Date(meal.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
                         <div class="meal-time"><i class="fas fa-clock"></i> <%= meal.time %></div>
                     </div>
                     
@@ -59,7 +59,8 @@
                         <strong>Meal Type:</strong> 
                         <%= meal.deliveryType === 'pickup' ? 'Pickup from family' : 
                             meal.deliveryType === 'delivery' ? 'Family will deliver' :
-                            'Sisters dine with family' %>
+                            meal.deliveryType === 'dining' ? 'Sisters dine with family' :
+                            'Not specified' %>
                     </div>
                     
                     <% if (meal.notes) { %>
@@ -75,15 +76,33 @@
             <div class="detail-card">
                 <div class="card-header missionaries">
                     <h3><i class="fas fa-users"></i> Sister Missionaries</h3>
+                    <!-- Show which system is being used -->
+                    <% if (meal.companionship && meal.companionship.missionaries && meal.companionship.missionaries.length > 0) { %>
+                        <span class="system-badge new">Companionship System</span>
+                    <% } else if (meal.missionaries && meal.missionaries.length > 0) { %>
+                        <span class="system-badge legacy">Individual System</span>
+                    <% } else { %>
+                        <span class="system-badge error">No Assignment</span>
+                    <% } %>
                 </div>
                 
                 <div class="card-content">
-                    <% if (meal.companionship && meal.companionship.length > 0) { %>
+                    <% if (meal.companionship && meal.companionship.missionaries && meal.companionship.missionaries.length > 0) { %>
+                        <!-- NEW SYSTEM: Show companionship info -->
+                        <div class="companionship-info">
+                            <% if (meal.companionship.area) { %>
+                                <div class="companionship-area">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <strong>Area:</strong> <%= meal.companionship.area %>
+                                </div>
+                            <% } %>
+                        </div>
+                        
                         <div class="missionaries-grid">
-                            <% meal.companionship.forEach(missionary => { %>
+                            <% meal.companionship.missionaries.forEach(missionary => { %>
                                 <div class="missionary-detail">
                                     <div class="missionary-name">
-                                        <%= missionary.fullName %>
+                                        <%= missionary.fullName || (missionary.firstName + ' ' + missionary.lastName) %>
                                         <% if (missionary.isTrainer) { %>
                                             <span class="trainer-badge">
                                                 <i class="fas fa-star"></i> Trainer
@@ -92,15 +111,70 @@
                                     </div>
                                     
                                     <div class="missionary-info">
-                                        <div class="info-item">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <span><%= missionary.companionshipArea %></span>
-                                        </div>
+                                        <% if (missionary.phoneNumber) { %>
+                                            <div class="info-item">
+                                                <i class="fas fa-phone"></i>
+                                                <span><%= missionary.phoneNumber %></span>
+                                            </div>
+                                        <% } %>
                                         
-                                        <div class="info-item">
-                                            <i class="fas fa-phone"></i>
-                                            <span><%= missionary.phoneNumber %></span>
-                                        </div>
+                                        <% if (missionary.email) { %>
+                                            <div class="info-item">
+                                                <i class="fas fa-envelope"></i>
+                                                <span><%= missionary.email %></span>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <% if (missionary.allergies) { %>
+                                            <div class="info-item allergies">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                <span><strong>Allergies:</strong> <%= missionary.allergies %></span>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <% if (missionary.dietaryRestrictions) { %>
+                                            <div class="info-item dietary">
+                                                <i class="fas fa-leaf"></i>
+                                                <span><strong>Dietary:</strong> <%= missionary.dietaryRestrictions %></span>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else if (meal.missionaries && meal.missionaries.length > 0) { %>
+                        <!-- LEGACY SYSTEM: Show individual missionaries -->
+                        <div class="legacy-notice">
+                            <i class="fas fa-info-circle"></i>
+                            <span>This meal was created using the individual missionary system. Consider updating to use companionships.</span>
+                        </div>
+                        
+                        <div class="missionaries-grid">
+                            <% meal.missionaries.forEach(missionary => { %>
+                                <div class="missionary-detail legacy">
+                                    <div class="missionary-name">
+                                        <%= missionary.fullName || (missionary.firstName + ' ' + missionary.lastName) %>
+                                        <% if (missionary.isTrainer) { %>
+                                            <span class="trainer-badge">
+                                                <i class="fas fa-star"></i> Trainer
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <div class="missionary-info">
+                                        <% if (missionary.companionshipArea) { %>
+                                            <div class="info-item">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span><%= missionary.companionshipArea %></span>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <% if (missionary.phoneNumber) { %>
+                                            <div class="info-item">
+                                                <i class="fas fa-phone"></i>
+                                                <span><%= missionary.phoneNumber %></span>
+                                            </div>
+                                        <% } %>
                                         
                                         <% if (missionary.email) { %>
                                             <div class="info-item">
@@ -127,7 +201,14 @@
                             <% }); %>
                         </div>
                     <% } else { %>
-                        <p class="no-data">No missionaries assigned to this meal.</p>
+                        <div class="no-assignment">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>No Missionaries Assigned</h4>
+                            <p>This meal doesn't have any missionaries assigned yet. Please edit the meal to assign a companionship.</p>
+                            <a href="/meals/<%= meal._id %>/edit" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit Meal
+                            </a>
+                        </div>
                     <% } %>
                 </div>
             </div>
@@ -227,6 +308,10 @@
                                     <button onclick="requestVolunteers()" class="btn btn-secondary">
                                         <i class="fas fa-users"></i> Request Volunteers
                                     </button>
+                                    
+                                    <button onclick="shareSignupLink()" class="btn btn-success">
+                                        <i class="fas fa-share"></i> Share Signup Link
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -316,6 +401,30 @@
             gap: 0.5rem;
         }
         
+        .system-badge {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .system-badge.new {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .system-badge.legacy {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .system-badge.error {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
         .meal-date-large {
             text-align: center;
         }
@@ -362,6 +471,34 @@
             border-radius: 8px;
         }
         
+        .companionship-info {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #e8f4fd 0%, #d6eaf8 100%);
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .companionship-area {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .legacy-notice {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef9e7 0%, #fcf4d6 100%);
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #8b5a2b;
+        }
+        
         .missionaries-grid {
             display: grid;
             gap: 1.5rem;
@@ -371,6 +508,17 @@
             border: 2px solid #e9ecef;
             border-radius: 8px;
             padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .missionary-detail:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+        }
+        
+        .missionary-detail.legacy {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #fef9e7 0%, #fcf4d6 100%);
         }
         
         .missionary-name {
@@ -424,6 +572,18 @@
             padding: 0.75rem;
             border-radius: 6px;
             border-left: 3px solid #f39c12;
+        }
+        
+        .no-assignment {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+        
+        .no-assignment i {
+            font-size: 3rem;
+            color: #e74c3c;
+            margin-bottom: 1rem;
         }
         
         .family-details.assigned {
@@ -490,19 +650,13 @@
             gap: 1rem;
             justify-content: center;
             margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
         
         .messaging-actions {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
-        }
-        
-        .no-data {
-            text-align: center;
-            color: #7f8c8d;
-            font-style: italic;
-            padding: 2rem;
         }
         
         @media (max-width: 768px) {
@@ -524,6 +678,10 @@
             
             .signup-actions {
                 flex-direction: column;
+            }
+            
+            .contact-actions {
+                justify-content: center;
             }
         }
     </style>
@@ -580,26 +738,55 @@
         }
         
         function showSignupModal() {
-            // This would open a modal to assign a family
             alert('Family assignment feature coming soon! Use the Edit button to assign a family.');
         }
         
         function requestVolunteers() {
-            const startDate = '<%= moment(meal.date).format("YYYY-MM-DD") %>';
-            const endDate = startDate;
+            const mealDate = new Date('<%= meal.date %>');
+            const formattedDate = mealDate.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
             
             fetch('/text/request-volunteers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    dateStart: startDate, 
-                    dateEnd: endDate,
-                    message: `We need a volunteer to provide a meal for our sister missionaries on <%= moment(meal.date).format("MMMM Do") %> at <%= meal.time %>. Please contact the meal coordinator if you can help. Thank you!`
+                    dateStart: '<%= new Date(meal.date).toISOString().split("T")[0] %>', 
+                    dateEnd: '<%= new Date(meal.date).toISOString().split("T")[0] %>',
+                    message: `We need a volunteer to provide a meal for our sister missionaries on ${formattedDate} at <%= meal.time %>. Please contact the meal coordinator if you can help. Thank you!`
                 })
             })
             .then(response => response.json())
             .then(result => alert(result.message))
             .catch(error => alert('Error sending volunteer request'));
+        }
+        
+        async function shareSignupLink() {
+            const signupUrl = `${window.location.origin}/meals/${mealId}/signup`;
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Meal Signup - Sister Missionary Meal Calendar',
+                        text: 'Sign up to provide a meal for our sister missionaries!',
+                        url: signupUrl
+                    });
+                } catch (error) {
+                    copyToClipboard(signupUrl);
+                }
+            } else {
+                copyToClipboard(signupUrl);
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Signup link copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy this signup link:', text);
+            });
         }
         
         function sendCustomMessage() {

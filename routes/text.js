@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Meal = require('../models/Meal');
 const Family = require('../models/Family');
-const Missionary = require('../models/Missionary');
+const Companionship = require('../models/Companionship');
 const moment = require('moment');
 
 // Initialize Twilio client only if credentials are provided
@@ -66,7 +66,12 @@ router.get('/', async (req, res) => {
       date: { $gte: new Date() }
     })
     .populate('family')
-    .populate('companionship')
+    .populate({
+      path: 'companionship',
+      populate: {
+        path: 'missionaries'
+      }
+    })
     .sort({ date: 1 })
     .limit(10);
     
@@ -82,13 +87,19 @@ router.post('/remind-family/:mealId', async (req, res) => {
   try {
     const meal = await Meal.findById(req.params.mealId)
       .populate('family')
-      .populate('companionship');
+      .populate({
+        path: 'companionship',
+        populate: {
+          path: 'missionaries'
+        }
+      });
     
     if (!meal || !meal.family) {
       return res.status(400).json({ error: 'Meal or family not found' });
     }
     
-    const missionaryNames = meal.companionship.map(m => m.fullName).join(' and ');
+    // Create missionary names string
+    const missionaryNames = meal.companionship.missionaries.map(m => m.fullName).join(' and ');
     const dateFormatted = moment(meal.date).format('dddd, MMMM Do');
     const deliveryText = meal.deliveryType === 'pickup' ? 'for pickup' : 'to be delivered';
     
@@ -116,7 +127,12 @@ router.post('/notify-missionaries/:mealId', async (req, res) => {
   try {
     const meal = await Meal.findById(req.params.mealId)
       .populate('family')
-      .populate('companionship');
+      .populate({
+        path: 'companionship',
+        populate: {
+          path: 'missionaries'
+        }
+      });
     
     if (!meal) {
       return res.status(400).json({ error: 'Meal not found' });
@@ -136,7 +152,7 @@ router.post('/notify-missionaries/:mealId', async (req, res) => {
     }
     
     // Send to all missionaries in companionship
-    const sendPromises = meal.companionship.map(missionary => 
+    const sendPromises = meal.companionship.missionaries.map(missionary => 
       sendSMS(formatPhoneNumber(missionary.phoneNumber), message)
     );
     

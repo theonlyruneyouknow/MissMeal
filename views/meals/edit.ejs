@@ -1,5 +1,7 @@
+<!-- views/meals/edit.ejs -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +9,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -28,7 +31,8 @@
                 <a href="/meals/<%= meal._id %>" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Meal
                 </a>
-                <form action="/meals/<%= meal._id %>?_method=DELETE" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this meal?')">
+                <form action="/meals/<%= meal._id %>?_method=DELETE" method="POST" style="display: inline;"
+                    onsubmit="return confirm('Are you sure you want to delete this meal?')">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash"></i> Delete Meal
                     </button>
@@ -40,96 +44,133 @@
             <form action="/meals/<%= meal._id %>?_method=PUT" method="POST">
                 <div class="form-section">
                     <h3><i class="fas fa-calendar"></i> Meal Date & Time</h3>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="date">Date *</label>
-                            <input type="date" id="date" name="date" value="<%= moment(meal.date).format('YYYY-MM-DD') %>" required>
+                            <input type="date" id="date" name="date"
+                                value="<%= typeof moment !== 'undefined' ? moment(meal.date).format('YYYY-MM-DD') : new Date(meal.date).toISOString().split('T')[0] %>"
+                                required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="time">Time *</label>
                             <select id="time" name="time" required>
                                 <option value="">Select time...</option>
-                                <option value="5:00 PM" <%= meal.time === '5:00 PM' ? 'selected' : '' %>>5:00 PM</option>
-                                <option value="5:30 PM" <%= meal.time === '5:30 PM' ? 'selected' : '' %>>5:30 PM</option>
-                                <option value="6:00 PM" <%= meal.time === '6:00 PM' ? 'selected' : '' %>>6:00 PM</option>
-                                <option value="6:30 PM" <%= meal.time === '6:30 PM' ? 'selected' : '' %>>6:30 PM</option>
-                                <option value="7:00 PM" <%= meal.time === '7:00 PM' ? 'selected' : '' %>>7:00 PM</option>
-                                <option value="7:30 PM" <%= meal.time === '7:30 PM' ? 'selected' : '' %>>7:30 PM</option>
-                                <option value="8:00 PM" <%= meal.time === '8:00 PM' ? 'selected' : '' %>>8:00 PM</option>
+                                <option value="5:00 PM" <%=meal.time==='5:00 PM' ? 'selected' : '' %>>5:00 PM</option>
+                                <option value="5:30 PM" <%=meal.time==='5:30 PM' ? 'selected' : '' %>>5:30 PM</option>
+                                <option value="6:00 PM" <%=meal.time==='6:00 PM' ? 'selected' : '' %>>6:00 PM</option>
+                                <option value="6:30 PM" <%=meal.time==='6:30 PM' ? 'selected' : '' %>>6:30 PM</option>
+                                <option value="7:00 PM" <%=meal.time==='7:00 PM' ? 'selected' : '' %>>7:00 PM</option>
+                                <option value="7:30 PM" <%=meal.time==='7:30 PM' ? 'selected' : '' %>>7:30 PM</option>
+                                <option value="8:00 PM" <%=meal.time==='8:00 PM' ? 'selected' : '' %>>8:00 PM</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-section">
                     <h3><i class="fas fa-users"></i> Sister Missionaries</h3>
-                    
+
                     <div class="form-group">
-                        <label for="companionship">Select Missionaries *</label>
-                        <div class="missionary-selection">
-                            <% if (missionaries && missionaries.length > 0) { %>
-                                <% missionaries.forEach(missionary => { %>
-                                    <label class="missionary-option">
-                                        <input type="checkbox" name="companionship" value="<%= missionary._id %>" 
-                                               <%= meal.companionship.some(m => m._id.toString() === missionary._id.toString()) ? 'checked' : '' %>>
-                                        <div class="missionary-card-small">
-                                            <strong><%= missionary.fullName %></strong>
-                                            <small><%= missionary.companionshipArea %></small>
+                        <label>Select Companionship:</label>
+                        <div class="companionship-selection">
+                            <% if (companionships && companionships.length> 0) { %>
+                                <% companionships.forEach(companionship=> { %>
+                                    <label class="companionship-option">
+                                        <input type="radio" name="companionship" value="<%= companionship._id %>"
+                                            <%=meal.companionship &&
+                                            meal.companionship._id.toString()===companionship._id.toString() ? 'checked'
+                                            : '' %>
+                                        required>
+                                        <div class="companionship-card">
+                                            <div class="companionship-area">
+                                                <strong>
+                                                    <%= companionship.area || 'No Area Assigned' %>
+                                                </strong>
+                                            </div>
+                                            <div class="companionship-missionaries">
+                                                <% if (companionship.missionaries && companionship.missionaries.length>
+                                                    0) { %>
+                                                    <%= companionship.missionaries.map(m=> m.fullName || (m.firstName +
+                                                        ' ' + m.lastName)).join(' & ') %>
+                                                        <% } else { %>
+                                                            <span class="no-missionaries">No missionaries
+                                                                assigned</span>
+                                                            <% } %>
+                                            </div>
                                         </div>
                                     </label>
-                                <% }); %>
-                            <% } else { %>
-                                <div class="no-missionaries">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <p>No missionaries available. <a href="/missionaries/new">Add missionaries first</a>.</p>
-                                </div>
-                            <% } %>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <div class="no-companionships">
+                                                <p>No companionships available.</p>
+                                            </div>
+                                            <% } %>
                         </div>
                     </div>
+
+                    <!-- Show current assignment if exists -->
+                    <% if (meal.companionship && meal.missionaries && meal.missionaries.length> 0) { %>
+                        <div class="current-companionship">
+                            <h4>Currently Assigned:</h4>
+                            <div class="current-missionaries">
+                                <% meal.missionaries.forEach((missionary, index)=> { %>
+                                    <span class="current-missionary">
+                                        <%= missionary.fullName || (missionary.firstName + ' ' + missionary.lastName) %>
+                                    </span>
+                                    <% if (index < meal.missionaries.length - 1) { %> & <% } %>
+                                            <% }); %>
+                            </div>
+                        </div>
+                        <% } %>
                 </div>
-                
+
                 <div class="form-section">
                     <h3><i class="fas fa-utensils"></i> Meal Arrangement</h3>
-                    
+
                     <div class="form-group">
                         <label for="deliveryType">Meal Type</label>
                         <select id="deliveryType" name="deliveryType">
-                            <option value="dining" <%= meal.deliveryType === 'dining' ? 'selected' : '' %>>Sisters dine with family</option>
-                            <option value="delivery" <%= meal.deliveryType === 'delivery' ? 'selected' : '' %>>Family will deliver the meal</option>
-                            <option value="pickup" <%= meal.deliveryType === 'pickup' ? 'selected' : '' %>>Missionaries will pick up the meal</option>
+                            <option value="dining" <%=meal.deliveryType==='dining' ? 'selected' : '' %>>Sisters dine
+                                with family</option>
+                            <option value="delivery" <%=meal.deliveryType==='delivery' ? 'selected' : '' %>>Family will
+                                deliver the meal</option>
+                            <option value="pickup" <%=meal.deliveryType==='pickup' ? 'selected' : '' %>>Missionaries
+                                will pick up the meal</option>
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="form-section">
                     <h3><i class="fas fa-home"></i> Family Assignment</h3>
-                    
+
                     <div class="form-group">
                         <label for="family">Assign Family</label>
                         <select id="family" name="family">
                             <option value="">Leave unassigned (families can sign up)</option>
-                            <% if (families && families.length > 0) { %>
-                                <% families.forEach(family => { %>
-                                    <option value="<%= family._id %>" 
-                                            <%= meal.family && meal.family._id.toString() === family._id.toString() ? 'selected' : '' %>>
+                            <% if (typeof families !=='undefined' && families && families.length> 0) { %>
+                                <% families.forEach(family=> { %>
+                                    <option value="<%= family._id %>" <%=meal.family && meal.family._id &&
+                                        meal.family._id.toString()===family._id.toString() ? 'selected' : '' %>>
                                         <%= family.familyName %> - <%= family.contactName %>
                                     </option>
-                                <% }); %>
-                            <% } %>
+                                    <% }); %>
+                                        <% } %>
                         </select>
                         <small class="form-help">Leave blank to allow families to sign up themselves</small>
                     </div>
-                    
+
                     <% if (meal.family) { %>
                         <div class="current-assignment">
                             <h4>Currently Assigned:</h4>
                             <div class="family-summary">
                                 <div class="family-info">
-                                    <strong><%= meal.family.familyName %></strong><br>
+                                    <strong>
+                                        <%= meal.family.familyName %>
+                                    </strong><br>
                                     Contact: <%= meal.family.contactName %><br>
-                                    Phone: <%= meal.family.phoneNumber %>
+                                        Phone: <%= meal.family.phoneNumber %>
                                 </div>
                                 <div class="family-actions">
                                     <a href="tel:<%= meal.family.phoneNumber %>" class="btn btn-small btn-success">
@@ -139,22 +180,23 @@
                                         <a href="mailto:<%= meal.family.email %>" class="btn btn-small btn-primary">
                                             <i class="fas fa-envelope"></i> Email
                                         </a>
-                                    <% } %>
+                                        <% } %>
                                 </div>
                             </div>
                         </div>
-                    <% } %>
+                        <% } %>
                 </div>
-                
+
                 <div class="form-section">
                     <h3><i class="fas fa-sticky-note"></i> Additional Information</h3>
-                    
+
                     <div class="form-group">
                         <label for="notes">Notes</label>
-                        <textarea id="notes" name="notes" rows="4" placeholder="Any special instructions, dietary restrictions, or additional information..."><%= meal.notes || '' %></textarea>
+                        <textarea id="notes" name="notes" rows="4"
+                            placeholder="Any special instructions, dietary restrictions, or additional information..."><%= meal.notes || '' %></textarea>
                     </div>
                 </div>
-                
+
                 <div class="form-actions">
                     <a href="/meals/<%= meal._id %>" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
@@ -171,19 +213,19 @@
             margin: 0 auto;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-        
+
         .form-section {
             padding: 2rem;
             border-bottom: 1px solid #e9ecef;
         }
-        
+
         .form-section:last-of-type {
             border-bottom: none;
         }
-        
+
         .form-section h3 {
             color: #2c3e50;
             font-size: 1.25rem;
@@ -193,24 +235,24 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
         }
-        
+
         .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: #2c3e50;
         }
-        
+
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -221,7 +263,7 @@
             font-size: 1rem;
             transition: border-color 0.3s ease;
         }
-        
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -229,7 +271,7 @@
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
-        
+
         .form-help {
             display: block;
             font-size: 0.8rem;
@@ -237,57 +279,93 @@
             margin-top: 0.25rem;
             font-style: italic;
         }
-        
-        .missionary-selection {
+
+        .companionship-selection {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             padding: 1rem;
             background: #f8f9fa;
             border-radius: 8px;
             border: 2px solid #e9ecef;
         }
-        
-        .missionary-option {
+
+        .companionship-option {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0.75rem;
             cursor: pointer;
             margin-bottom: 0;
         }
-        
-        .missionary-option input[type="checkbox"] {
+
+        .companionship-option input[type="radio"] {
             width: auto;
             margin: 0;
+            margin-top: 0.5rem;
         }
-        
-        .missionary-card-small {
+
+        .companionship-card {
             background: white;
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 8px;
             border: 2px solid transparent;
             transition: all 0.3s ease;
             flex: 1;
         }
-        
-        .missionary-option input[type="checkbox"]:checked + .missionary-card-small {
+
+        .companionship-option input[type="radio"]:checked+.companionship-card {
             border-color: #3498db;
             background: #ebf3fd;
         }
-        
-        .missionary-card-small strong {
-            display: block;
-            color: #2c3e50;
-            margin-bottom: 0.25rem;
+
+        .companionship-area {
+            margin-bottom: 0.75rem;
         }
-        
-        .missionary-card-small small {
+
+        .companionship-area strong {
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .companionship-missionaries {
             color: #7f8c8d;
+        }
+
+        .missionary-name {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .no-missionaries {
+            color: #e74c3c;
             font-style: italic;
         }
-        
+
+        .current-companionship {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 8px;
+            border: 2px solid #3498db;
+        }
+
+        .current-companionship h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .current-missionaries {
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .current-missionary {
+            color: #2980b9;
+        }
+
         .current-assignment {
             margin-top: 1.5rem;
             padding: 1.5rem;
@@ -295,39 +373,39 @@
             border-radius: 8px;
             border: 2px solid #27ae60;
         }
-        
+
         .current-assignment h4 {
             color: #2c3e50;
             margin-bottom: 1rem;
         }
-        
+
         .family-summary {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .family-info {
             color: #2c3e50;
         }
-        
+
         .family-actions {
             display: flex;
             gap: 0.5rem;
         }
-        
-        .no-missionaries {
+
+        .no-companionships {
             text-align: center;
             padding: 2rem;
             color: #7f8c8d;
         }
-        
-        .no-missionaries i {
+
+        .no-companionships i {
             font-size: 2rem;
             margin-bottom: 1rem;
             color: #e74c3c;
         }
-        
+
         .form-actions {
             padding: 2rem;
             background: #f8f9fa;
@@ -335,32 +413,32 @@
             gap: 1rem;
             justify-content: space-between;
         }
-        
+
         .btn-danger {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
         }
-        
+
         .btn-danger:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
         }
-        
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
-            
-            .missionary-selection {
+
+            .companionship-selection {
                 grid-template-columns: 1fr;
             }
-            
+
             .family-summary {
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
             }
-            
+
             .form-actions {
                 flex-direction: column;
             }
@@ -368,22 +446,97 @@
     </style>
 
     <script>
-        // Validate form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const selectedMissionaries = document.querySelectorAll('input[name="companionship"]:checked');
-            
-            if (selectedMissionaries.length === 0) {
-                e.preventDefault();
-                alert('Please select at least one missionary for this meal.');
-                return false;
-            }
-            
-            if (selectedMissionaries.length > 4) {
-                e.preventDefault();
-                alert('Please select no more than 4 missionaries per meal.');
-                return false;
-            }
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const submitButton = document.querySelector('button[type="submit"]');
+
+            console.log('=== EDIT FORM LOADED ===');
+            console.log('Meal ID:', '<%= meal._id %>');
+            console.log('Form action:', form.action);
+            console.log('Form method:', form.method);
+
+            // Log current values
+            const currentValues = {
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                companionship: document.querySelector('input[name="companionship"]:checked')?.value,
+                family: document.getElementById('family').value,
+                deliveryType: document.getElementById('deliveryType').value,
+                notes: document.getElementById('notes').value
+            };
+            console.log('Current form values:', currentValues);
+
+            // Add change listeners to see when values change
+            document.getElementById('date').addEventListener('change', function () {
+                console.log('Date changed to:', this.value);
+            });
+
+            document.getElementById('time').addEventListener('change', function () {
+                console.log('Time changed to:', this.value);
+            });
+
+            // Add listener for companionship radio buttons
+            document.querySelectorAll('input[name="companionship"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    console.log('Companionship changed to:', this.value);
+                });
+            });
+
+            form.addEventListener('submit', function (e) {
+                console.log('=== FORM SUBMISSION STARTED ===');
+
+                // Get current form data
+                const formData = {
+                    date: document.getElementById('date').value,
+                    time: document.getElementById('time').value,
+                    companionship: document.querySelector('input[name="companionship"]:checked')?.value,
+                    family: document.getElementById('family').value,
+                    deliveryType: document.getElementById('deliveryType').value,
+                    notes: document.getElementById('notes').value
+                };
+
+                console.log('Submitting form data:', formData);
+
+                // Check for required fields
+                if (!formData.companionship) {
+                    e.preventDefault();
+                    alert('Please select a companionship');
+                    console.error('Validation failed: No companionship selected');
+                    return false;
+                }
+
+                if (!formData.date) {
+                    e.preventDefault();
+                    alert('Please select a date');
+                    console.error('Validation failed: No date selected');
+                    return false;
+                }
+
+                if (!formData.time) {
+                    e.preventDefault();
+                    alert('Please select a time');
+                    console.error('Validation failed: No time selected');
+                    return false;
+                }
+
+                // Show loading state
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                submitButton.disabled = true;
+
+                console.log('Form validation passed, submitting...');
+
+                // Set a timeout to detect if the form submission hangs
+                setTimeout(() => {
+                    console.log('Form submission taking longer than expected...');
+                }, 3000);
+            });
+
+            // Listen for page unload to see if redirect happens
+            window.addEventListener('beforeunload', function () {
+                console.log('Page is being unloaded (redirect or navigation happening)');
+            });
         });
     </script>
 </body>
+
 </html>
