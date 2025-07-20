@@ -2,137 +2,81 @@ const express = require('express');
 const router = express.Router();
 const Family = require('../models/Family');
 
-// GET all families
+// GET /families - List all families
 router.get('/', async (req, res) => {
   try {
     const families = await Family.find().sort({ familyName: 1 });
     res.render('families/index', { families });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading families');
+    console.error('Error fetching families:', error);
+    res.status(500).send('Error fetching families');
   }
 });
 
-// GET new family form
+// GET /families/new - Show form to create new family
 router.get('/new', (req, res) => {
-  res.render('families/new');
+  res.render('families/new', { family: {} });
 });
 
-// POST create new family
+// POST /families - Create new family
 router.post('/', async (req, res) => {
   try {
-    const familyData = {
-      familyName: req.body.familyName,
-      contactName: req.body.contactName,
-      phoneNumber: req.body.phoneNumber,
-      email: req.body.email,
-      address: {
-        street: req.body.street || '',
-        city: req.body.city || '',
-        state: req.body.state || '',
-        zipCode: req.body.zipCode || ''
-      },
-      preferredDeliveryType: req.body.preferredDeliveryType,
-      availableDays: req.body.availableDays || [],
-      maxMealsPerMonth: parseInt(req.body.maxMealsPerMonth) || 2,
-      allergies: req.body.allergies || '',
-      notes: req.body.notes || ''
-    };
-
-    const family = new Family(familyData);
+    const family = new Family(req.body);
     await family.save();
-    
     res.redirect('/families');
   } catch (error) {
-    console.error(error);
+    console.error('Error creating family:', error);
     res.status(500).send('Error creating family');
   }
 });
 
-// GET family details
+// GET /families/:id - Show specific family
 router.get('/:id', async (req, res) => {
   try {
     const family = await Family.findById(req.params.id);
-    
     if (!family) {
       return res.status(404).send('Family not found');
     }
-    
     res.render('families/show', { family });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading family');
+    console.error('Error fetching family:', error);
+    res.status(500).send('Error fetching family');
   }
 });
 
-// GET edit family form
+// GET /families/:id/edit - Show form to edit family
 router.get('/:id/edit', async (req, res) => {
   try {
     const family = await Family.findById(req.params.id);
-    
     if (!family) {
       return res.status(404).send('Family not found');
     }
-    
     res.render('families/edit', { family });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading edit form');
+    console.error('Error loading edit family form:', error);
+    res.status(500).send('Error loading edit family form');
   }
 });
 
-// PUT update family
+// PUT /families/:id - Update family
 router.put('/:id', async (req, res) => {
   try {
-    const updateData = {
-      familyName: req.body.familyName,
-      contactName: req.body.contactName,
-      phoneNumber: req.body.phoneNumber,
-      email: req.body.email,
-      address: {
-        street: req.body.street || '',
-        city: req.body.city || '',
-        state: req.body.state || '',
-        zipCode: req.body.zipCode || ''
-      },
-      preferredDeliveryType: req.body.preferredDeliveryType,
-      availableDays: req.body.availableDays || [],
-      maxMealsPerMonth: parseInt(req.body.maxMealsPerMonth) || 2,
-      allergies: req.body.allergies || '',
-      notes: req.body.notes || '',
-      isActive: req.body.isActive === 'on'
-    };
-
-    await Family.findByIdAndUpdate(req.params.id, updateData);
-    res.redirect('/families/' + req.params.id);
+    await Family.findByIdAndUpdate(req.params.id, req.body);
+    res.redirect(`/families/${req.params.id}`);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating family:', error);
     res.status(500).send('Error updating family');
   }
 });
 
-// DELETE family
+// DELETE /families/:id - Delete family
 router.delete('/:id', async (req, res) => {
   try {
     await Family.findByIdAndDelete(req.params.id);
     res.redirect('/families');
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting family:', error);
     res.status(500).send('Error deleting family');
-  }
-});
-
-// API endpoint to get active families
-router.get('/api/active', async (req, res) => {
-  try {
-    const families = await Family.find({ isActive: true })
-      .select('familyName contactName phoneNumber email')
-      .sort({ familyName: 1 });
-    
-    res.json(families);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error fetching families' });
   }
 });
 

@@ -2,154 +2,81 @@ const express = require('express');
 const router = express.Router();
 const Missionary = require('../models/Missionary');
 
-// GET all missionaries
+// GET /missionaries - List all missionaries
 router.get('/', async (req, res) => {
   try {
-    const missionaries = await Missionary.find().sort({ companionshipArea: 1, lastName: 1 });
-    
-    // Group by companionship area
-    const companionships = {};
-    missionaries.forEach(missionary => {
-      if (!companionships[missionary.companionshipArea]) {
-        companionships[missionary.companionshipArea] = [];
-      }
-      companionships[missionary.companionshipArea].push(missionary);
-    });
-    
-    res.render('missionaries/index', { missionaries, companionships });
+    const missionaries = await Missionary.find().sort({ lastName: 1, firstName: 1 });
+    res.render('missionaries/index', { missionaries });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading missionaries');
+    console.error('Error fetching missionaries:', error);
+    res.status(500).send('Error fetching missionaries');
   }
 });
 
-// GET new missionary form
+// GET /missionaries/new - Show form to create new missionary
 router.get('/new', (req, res) => {
-  res.render('missionaries/new');
+  res.render('missionaries/new', { missionary: {} });
 });
 
-// POST create new missionary
+// POST /missionaries - Create new missionary
 router.post('/', async (req, res) => {
   try {
-    const missionaryData = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      phoneNumber: req.body.phoneNumber,
-      email: req.body.email || '',
-      companionshipArea: req.body.companionshipArea,
-      isTrainer: req.body.isTrainer === 'on',
-      arrivalDate: new Date(req.body.arrivalDate),
-      expectedDepartureDate: req.body.expectedDepartureDate ? new Date(req.body.expectedDepartureDate) : null,
-      allergies: req.body.allergies || '',
-      dietaryRestrictions: req.body.dietaryRestrictions || '',
-      notes: req.body.notes || ''
-    };
-
-    const missionary = new Missionary(missionaryData);
+    const missionary = new Missionary(req.body);
     await missionary.save();
-    
     res.redirect('/missionaries');
   } catch (error) {
-    console.error(error);
+    console.error('Error creating missionary:', error);
     res.status(500).send('Error creating missionary');
   }
 });
 
-// GET missionary details
+// GET /missionaries/:id - Show specific missionary
 router.get('/:id', async (req, res) => {
   try {
     const missionary = await Missionary.findById(req.params.id);
-    
     if (!missionary) {
       return res.status(404).send('Missionary not found');
     }
-    
     res.render('missionaries/show', { missionary });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading missionary');
+    console.error('Error fetching missionary:', error);
+    res.status(500).send('Error fetching missionary');
   }
 });
 
-// GET edit missionary form
+// GET /missionaries/:id/edit - Show form to edit missionary
 router.get('/:id/edit', async (req, res) => {
   try {
     const missionary = await Missionary.findById(req.params.id);
-    
     if (!missionary) {
       return res.status(404).send('Missionary not found');
     }
-    
     res.render('missionaries/edit', { missionary });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading edit form');
+    console.error('Error loading edit missionary form:', error);
+    res.status(500).send('Error loading edit missionary form');
   }
 });
 
-// PUT update missionary
+// PUT /missionaries/:id - Update missionary
 router.put('/:id', async (req, res) => {
   try {
-    const updateData = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      phoneNumber: req.body.phoneNumber,
-      email: req.body.email || '',
-      companionshipArea: req.body.companionshipArea,
-      isTrainer: req.body.isTrainer === 'on',
-      arrivalDate: new Date(req.body.arrivalDate),
-      expectedDepartureDate: req.body.expectedDepartureDate ? new Date(req.body.expectedDepartureDate) : null,
-      allergies: req.body.allergies || '',
-      dietaryRestrictions: req.body.dietaryRestrictions || '',
-      notes: req.body.notes || '',
-      isActive: req.body.isActive === 'on'
-    };
-
-    await Missionary.findByIdAndUpdate(req.params.id, updateData);
-    res.redirect('/missionaries/' + req.params.id);
+    await Missionary.findByIdAndUpdate(req.params.id, req.body);
+    res.redirect(`/missionaries/${req.params.id}`);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating missionary:', error);
     res.status(500).send('Error updating missionary');
   }
 });
 
-// DELETE missionary
+// DELETE /missionaries/:id - Delete missionary
 router.delete('/:id', async (req, res) => {
   try {
     await Missionary.findByIdAndDelete(req.params.id);
     res.redirect('/missionaries');
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting missionary:', error);
     res.status(500).send('Error deleting missionary');
-  }
-});
-
-// API endpoint to get missionaries by companionship area
-router.get('/api/companionship/:area', async (req, res) => {
-  try {
-    const missionaries = await Missionary.find({ 
-      companionshipArea: req.params.area,
-      isActive: true 
-    }).sort({ lastName: 1 });
-    
-    res.json(missionaries);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error fetching missionaries' });
-  }
-});
-
-// API endpoint to get all active missionaries
-router.get('/api/active', async (req, res) => {
-  try {
-    const missionaries = await Missionary.find({ isActive: true })
-      .select('firstName lastName fullName phoneNumber companionshipArea')
-      .sort({ companionshipArea: 1, lastName: 1 });
-    
-    res.json(missionaries);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error fetching missionaries' });
   }
 });
 

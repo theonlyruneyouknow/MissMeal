@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Miss Meal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .nav a {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .nav a:hover {
+            background: #0056b3;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .meal-item:last-child {
+            border-bottom: none;
+        }
+        .meal-date {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .meal-info {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+        .meal-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-assigned {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-needed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-pie"></i> Mission Meal Dashboard</h1>
+            <div class="nav">
+                <a href="/calendar"><i class="fas fa-calendar"></i> Calendar</a>
+                <a href="/meals"><i class="fas fa-utensils"></i> Meals</a>
+                <a href="/families"><i class="fas fa-users"></i> Families</a>
+                <a href="/missionaries"><i class="fas fa-user-tie"></i> Missionaries</a>
+                <a href="/companionships"><i class="fas fa-handshake"></i> Companionships</a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon" style="color: #007bff;">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="number"><%= stats.totalMeals %></div>
+                <div class="label">Total Meals</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="icon" style="color: #28a745;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="number"><%= stats.assignedMeals %></div>
+                <div class="label">Assigned Meals</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="icon" style="color: #dc3545;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="number"><%= stats.unassignedMeals %></div>
+                <div class="label">Needs Family</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="icon" style="color: #6f42c1;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="number"><%= stats.totalFamilies %></div>
+                <div class="label">Families</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="icon" style="color: #fd7e14;">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="number"><%= stats.totalMissionaries %></div>
+                <div class="label">Missionaries</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="icon" style="color: #20c997;">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="number"><%= stats.totalCompanionships %></div>
+                <div class="label">Companionships</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h3><i class="fas fa-clock"></i> Upcoming Meals</h3>
+                <% if (upcomingMeals.length > 0) { %>
+                    <% upcomingMeals.forEach(meal => { %>
+                        <div class="meal-item">
+                            <div class="meal-date">
+                                <%= new Date(meal.date).toLocaleDateString() %>
+                                <% if (meal.time) { %>
+                                    <br><small><%= meal.time %></small>
+                                <% } %>
+                            </div>
+                            <div class="meal-info">
+                                <% if (meal.companionship && meal.companionship.missionaries) { %>
+                                    <strong>
+                                        <% meal.companionship.missionaries.forEach((missionary, index) => { %>
+                                            Sister <%= missionary.lastName %><% if (index < meal.companionship.missionaries.length - 1) { %> & <% } %>
+                                        <% }); %>
+                                    </strong>
+                                <% } %>
+                                <% if (meal.address) { %>
+                                    <br><small><%= meal.address %></small>
+                                <% } %>
+                            </div>
+                            <div class="meal-status <%= meal.family ? 'status-assigned' : 'status-needed' %>">
+                                <%= meal.family ? meal.family.familyName : 'Family Needed' %>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-plus" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                        <p>No upcoming meals scheduled</p>
+                        <a href="/meals/new" style="color: #007bff; text-decoration: none;">
+                            <i class="fas fa-plus"></i> Add a meal
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-star"></i> Recent Signups</h3>
+                <% if (recentSignups.length > 0) { %>
+                    <% recentSignups.forEach(meal => { %>
+                        <div class="meal-item">
+                            <div class="meal-date">
+                                <%= new Date(meal.createdAt).toLocaleDateString() %>
+                            </div>
+                            <div class="meal-info">
+                                <strong><%= meal.family.familyName %></strong>
+                                <br><small>signed up for <%= new Date(meal.date).toLocaleDateString() %></small>
+                                <% if (meal.time) { %>
+                                    at <%= meal.time %>
+                                <% } %>
+                            </div>
+                            <div class="meal-status status-assigned">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                        <p>No recent signups</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

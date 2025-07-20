@@ -1,263 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sister Missionary Meal Calendar</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Meal Calendar</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .meal-missionaries {
-            font-size: 0.85rem;
-            margin-bottom: 0.3rem;
-            color: #2c3e50;
-            font-weight: 500;
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5; 
         }
-
-        .missionary-name {
-            color: #3498db;
-        }
-
-        .missionary-separator {
-            color: #7f8c8d;
-            font-weight: normal;
-        }
-
-        .companionship-area {
-            font-size: 0.75rem;
-            color: #95a5a6;
-            margin-top: 0.2rem;
-        }
-
-        .no-assignment {
-            color: #e74c3c;
-            font-style: italic;
-        }
-
-        .meal-family {
-            font-size: 0.8rem;
-            margin-bottom: 0.3rem;
-        }
-
-        .family-name {
-            color: #27ae60;
-            font-weight: 500;
-        }
-
-        .unassigned {
-            color: #f39c12;
-            font-weight: 500;
-        }
-
-        .meal-type {
-            font-size: 0.75rem;
-            color: #7f8c8d;
-            margin-bottom: 0.3rem;
-        }
-
-        .meal-actions {
-            display: flex;
-            gap: 0.25rem;
-            margin-top: 0.5rem;
-        }
-
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-        }
-
-        .meal-item {
+        
+        /* Simple Navigation Bar */
+        .nav-bar {
             background: #f8f9fa;
-            border-left: 3px solid #3498db;
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-            transition: all 0.2s ease;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px 0;
+            text-align: center;
         }
-
-        .meal-item:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        
+        .nav-bar .nav-buttons {
+            display: inline-flex;
+            gap: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .nav-bar .nav-buttons a {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-bar .nav-buttons a:last-child {
+            border-right: none;
+        }
+        
+        .nav-bar .nav-buttons a:hover {
+            background: #0056b3;
+        }
+        
+        .nav-bar .nav-buttons a.active {
+            background: #28a745;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .calendar-nav { 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; 
+            gap: 20px;
+        }
+        .calendar-nav button { 
+            padding: 10px 20px; 
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .calendar-nav button:hover {
+            background: #0056b3;
+        }
+        .current-month { 
+            font-size: 28px; 
+            font-weight: bold;
+            color: #333;
+            min-width: 200px;
+            text-align: center;
+        }
+        .calendar { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 2px; 
+            max-width: 900px; 
+            margin: 0 auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .day-header { 
+            background: #343a40; 
+            color: white; 
+            text-align: center; 
+            padding: 15px 10px; 
+            font-weight: bold; 
+            font-size: 14px;
+        }
+        .day { 
+            border: 1px solid #e9ecef; 
+            padding: 10px; 
+            min-height: 100px; 
+            background: white; 
+            cursor: pointer; 
+            position: relative;
+            transition: background-color 0.2s;
+        }
+        .day:hover { 
+            background: #f8f9fa; 
+        }
+        .day-number { 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            font-size: 16px;
+            color: #495057;
+        }
+        .meal { 
+            background: #007bff; 
+            color: white; 
+            padding: 3px 6px; 
+            margin: 2px 0; 
+            font-size: 11px; 
+            border-radius: 3px; 
+            cursor: pointer;
+            display: block;
+        }
+        .meal:hover { 
+            background: #0056b3; 
+        }
+        .meal.assigned {
+            background: #28a745;
+        }
+        .meal.assigned:hover {
+            background: #218838;
+        }
+        .add-meal { 
+            background: #6c757d; 
+            color: white; 
+            padding: 4px 8px; 
+            margin-top: 8px; 
+            font-size: 10px; 
+            border-radius: 3px; 
+            text-align: center; 
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .add-meal:hover { 
+            background: #5a6268; 
+            opacity: 1;
+        }
+        .other-month {
+            opacity: 0.3;
+            background: #f8f9fa;
+        }
+        .today {
+            background: #fff3cd !important;
+            border: 2px solid #ffc107;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            position: relative;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .loading .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .calendar-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .calendar-actions a {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+        .calendar-actions a:hover {
+            background: #218838;
+        }
+        @media (max-width: 768px) {
+            .nav-bar .nav-buttons {
+                flex-direction: column;
+                width: 200px;
+            }
+            .nav-bar .nav-buttons a {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            }
+            .nav-bar .nav-buttons a:last-child {
+                border-bottom: none;
+            }
+            .calendar-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .current-month {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
-
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
-            <div class="nav-links">
-                <a href="/" class="nav-link active">Calendar</a>
-                <a href="/calendar/list" class="nav-link active">List View</a>
-                <a href="/" class="nav-link">Card View</a>
-                <a href="/meals" class="nav-link">Meals</a>
-                <a href="/families" class="nav-link">Families</a>
-                <a href="/missionaries" class="nav-link">Missionaries</a>
-                <a href="/text" class="nav-link">Messages</a>
-            </div>
+    <!-- Simple Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-buttons">
+            <a href="/calendar" class="active">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
+            <a href="/meals">
+                <i class="fas fa-utensils"></i> Meals
+            </a>
+            <a href="/families">
+                <i class="fas fa-users"></i> Families
+            </a>
+            <a href="/missionaries">
+                <i class="fas fa-user-tie"></i> Missionaries
+            </a>
+            <a href="/companionships">
+                <i class="fas fa-handshake"></i> Companionships
+            </a>
         </div>
-    </nav>
+    </div>
 
     <div class="container">
-        <div class="calendar-header">
-            <h2>Upcoming Meals</h2>
-            <div class="header-actions">
-                <a href="/meals/new" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Schedule New Meal
-                </a>
-                <button onclick="refreshCalendar()" class="btn btn-secondary">
-                    <i class="fas fa-refresh"></i> Refresh
-                </button>
-            </div>
+        <div class="header">
+            <h1><i class="fas fa-calendar"></i> Sister Missionary Meal Calendar</h1>
         </div>
 
-        <div class="calendar-grid">
-            <% if (meals && meals.length> 0) { %>
-            <% meals.forEach(meal=> { %>
-            <div class="meal-card <%= meal.isAssigned ? 'assigned' : 'unassigned' %>">
-                <div class="meal-date">
-                    <div class="date-day">
-                        <%= moment(meal.date).format('ddd') %>
-                    </div>
-                    <div class="date-number">
-                        <%= moment(meal.date).format('DD') %>
-                    </div>
-                    <div class="date-month">
-                        <%= moment(meal.date).format('MMM') %>
-                    </div>
-                </div>
+        <!-- Calendar Actions -->
+        <div class="calendar-actions">
+            <a href="/meals/new">
+                <i class="fas fa-plus"></i> Add New Meal
+            </a>
+            <a href="/calendar/list">
+                <i class="fas fa-list"></i> List View
+            </a>
+        </div>
 
-                <div class="meal-info">
-                    <div class="meal-time">
-                        <i class="fas fa-clock"></i>
-                        <%= meal.time %>
-                    </div>
-
-                    <div class="meal-missionaries">
-                        <i class="fas fa-users"></i>
-                        <% if (meal.companionship && meal.companionship.length> 0) { %>
-                        <%= meal.companionship.map(m=> m.fullName).join(' & ') %>
-                        <br>
-                        <small>
-                            <%= meal.companionship[0].companionshipArea %>
-                        </small>
-                        <% } else { %>
-                        No missionaries assigned
+        <!-- Calendar Navigation -->
+        <div class="calendar-nav">
+            <button onclick="navigateMonth(-1)">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div class="current-month">
+                <%= typeof monthName !== 'undefined' ? monthName : 'Unknown Month' %> 
+                <%= typeof year !== 'undefined' ? year : 'Unknown Year' %>
+            </div>
+            <button onclick="navigateMonth(1)">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="calendar">
+            <!-- Day headers -->
+            <div class="day-header">Sunday</div>
+            <div class="day-header">Monday</div>
+            <div class="day-header">Tuesday</div>
+            <div class="day-header">Wednesday</div>
+            <div class="day-header">Thursday</div>
+            <div class="day-header">Friday</div>
+            <div class="day-header">Saturday</div>
+            
+            <!-- Calendar content -->
+            <% if (typeof daysInMonth !== 'undefined' && typeof firstDay !== 'undefined' && typeof year !== 'undefined' && typeof month !== 'undefined') { %>
+                <!-- Empty cells for days before month starts -->
+                <% for (let i = 0; i < firstDay; i++) { %>
+                    <div class="day other-month"></div>
+                <% } %>
+                
+                <!-- Days of the month -->
+                <% 
+                const today = new Date();
+                const currentDay = today.getDate();
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+                %>
+                
+                <% for (let day = 1; day <= daysInMonth; day++) { %>
+                    <%
+                    const isToday = (year === currentYear && month === currentMonth && day === currentDay);
+                    %>
+                    <div class="day <%= isToday ? 'today' : '' %>" 
+                         data-year="<%= year %>" 
+                         data-month="<%= month %>" 
+                         data-day="<%= day %>">
+                        <div class="day-number"><%= day %></div>
+                        
+                        <!-- Meals for this day -->
+                        <% if (Array.isArray(meals)) { %>
+                            <% 
+                            const dayMeals = meals.filter(meal => {
+                                if (!meal || !meal.date) return false;
+                                const mealDate = new Date(meal.date);
+                                return mealDate.getDate() === day;
+                            });
+                            %>
+                            <% dayMeals.forEach(meal => { %>
+                                <div class="meal <%= meal.family ? 'assigned' : '' %>" data-meal-id="<%= meal._id || '' %>">
+                                    <%= meal.time || 'Meal' %>
+                                    <% if (meal.family && meal.family.familyName) { %>
+                                        - <%= meal.family.familyName %>
+                                    <% } else { %>
+                                        - <em>Family Needed</em>
+                                    <% } %>
+                                </div>
+                            <% }); %>
                         <% } %>
+                        
+                        <div class="add-meal" data-action="add-meal">
+                            <i class="fas fa-plus"></i> Add
+                        </div>
                     </div>
-
-                    <div class="meal-delivery">
-                        <i
-                            class="fas fa-<%= meal.deliveryType === 'pickup' ? 'hand-holding' : meal.deliveryType === 'delivery' ? 'truck' : 'users' %>"></i>
-                        <%= meal.deliveryType==='pickup' ? 'Pickup' : meal.deliveryType==='delivery'
-                        ? 'Delivery' : 'Dining with Family' %>
-                    </div>
-
-                    <% if (meal.family) { %>
-                    <div class="meal-family assigned">
-                        <i class="fas fa-home"></i>
-                        <strong>
-                            <%= meal.family.familyName %>
-                        </strong>
-                        <br>
-                        <small>Contact: <%= meal.family.contactName %></small>
-                        <br>
-                        <small>
-                            <%= meal.family.phoneNumber %>
-                        </small>
-                    </div>
-                    <% } else { %>
-                    <div class="meal-family unassigned">
-                        <i class="fas fa-question-circle"></i>
-                        <strong>FAMILY NEEDED</strong>
-                        <button onclick="showSignupModal('<%= meal._id %>')"
-                            class="btn btn-primary btn-small">
-                            Sign Up to Provide
-                        </button>
-                    </div>
-                    <% } %>
-
-                    <% if (meal.notes) { %>
-                    <div class="meal-notes">
-                        <i class="fas fa-sticky-note"></i>
-                        <%= meal.notes %>
-                    </div>
-                    <% } %>
-                </div>
-
-                <div class="meal-actions">
-                    <a href="/meals/<%= meal._id %>" class="btn btn-small">
-                        <i class="fas fa-eye"></i> View
-                    </a>
-                    <a href="/meals/<%= meal._id %>/edit" class="btn btn-small">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                </div>
-            </div>
-            <% }); %>
+                <% } %>
+                
+                <!-- Fill remaining cells to complete the grid -->
+                <%
+                const totalCells = Math.ceil((daysInMonth + firstDay) / 7) * 7;
+                const fillerCells = totalCells - (daysInMonth + firstDay);
+                %>
+                <% for (let i = 0; i < fillerCells; i++) { %>
+                    <div class="day other-month"></div>
+                <% } %>
+                
             <% } else { %>
-            <div class="no-meals">
-                <i class="fas fa-calendar-times"></i>
-                <h3>No meals scheduled</h3>
-                <p>Click "Schedule New Meal" to get started.</p>
-            </div>
+                <div style="grid-column: 1 / -1; padding: 40px; text-align: center; background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 8px;">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Calendar Data Not Available</h3>
+                    <p>Unable to load calendar information. Please refresh the page or contact support.</p>
+                </div>
             <% } %>
         </div>
-    </div>
 
-    <!-- Signup Modal -->
-    <div id="signupModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Sign Up to Provide Meal</h3>
-                <button onclick="closeSignupModal()" class="close-btn">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #28a745;"></div>
+                <span>Family Assigned</span>
             </div>
-
-            <form id="signupForm">
-                <input type="hidden" id="mealId" name="mealId">
-
-                <div class="form-group">
-                    <label for="familyName">Family Name:</label>
-                    <input type="text" id="familyName" name="familyName" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="contactName">Contact Person:</label>
-                    <input type="text" id="contactName" name="contactName" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="phoneNumber">Phone Number:</label>
-                    <input type="tel" id="phoneNumber" name="phoneNumber" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="deliveryType">Meal Preference:</label>
-                    <select id="deliveryType" name="deliveryType">
-                        <option value="dining">Sisters dine with our family</option>
-                        <option value="delivery">I'll deliver the meal</option>
-                        <option value="pickup">They can pick up the meal</option>
-                    </select>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" onclick="closeSignupModal()" class="btn btn-secondary">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Sign Up</button>
-                </div>
-            </form>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #007bff;"></div>
+                <span>Family Needed</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffc107;"></div>
+                <span>Today</span>
+            </div>
         </div>
     </div>
 
+    <!-- Load external JavaScript -->
     <script src="/js/calendar.js"></script>
+    <script>
+        // Pass data from EJS to external script
+        window.CalendarApp.setData(
+            <%= typeof year !== 'undefined' && year !== null ? year : 'null' %>,
+            <%= typeof month !== 'undefined' && month !== null ? month : 'null' %>,
+            '<%= typeof monthName !== "undefined" ? monthName : "Unknown" %>'
+        );
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            window.CalendarApp.init();
+        });
+    </script>
 </body>
-
 </html>
