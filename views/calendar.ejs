@@ -127,6 +127,22 @@
         .day:hover { 
             background: #f8f9fa; 
         }
+        
+        /* Past date styling */
+        .day.past {
+            background: #f8f9fa !important;
+            opacity: 0.6;
+        }
+        .day.past:hover {
+            background: #e9ecef !important;
+        }
+        .day.past .day-number {
+            color: #6c757d;
+        }
+        .day.past .add-meal {
+            display: none; /* Hide add meal button for past dates */
+        }
+        
         .day-number { 
             font-weight: bold; 
             margin-bottom: 8px; 
@@ -142,6 +158,7 @@
             border-radius: 3px; 
             cursor: pointer;
             display: block;
+            transition: background-color 0.2s;
         }
         .meal:hover { 
             background: #0056b3; 
@@ -152,6 +169,28 @@
         .meal.assigned:hover {
             background: #218838;
         }
+        
+        /* Past meal styling */
+        .meal.past {
+            background: #6c757d !important;
+            opacity: 0.7;
+            text-decoration: line-through;
+            position: relative;
+        }
+        .meal.past::after {
+            content: "✓ Completed";
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8px;
+            font-weight: bold;
+        }
+        .meal.past:hover {
+            background: #5a6268 !important;
+            opacity: 0.8;
+        }
+        
         .add-meal { 
             background: #6c757d; 
             color: white; 
@@ -246,6 +285,28 @@
         .calendar-actions a:hover {
             background: #218838;
         }
+        
+        /* Archive toggle */
+        .archive-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .archive-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .archive-toggle label:hover {
+            background: #e9ecef;
+        }
+        
         @media (max-width: 768px) {
             .nav-bar .nav-buttons {
                 flex-direction: column;
@@ -305,6 +366,15 @@
             </a>
         </div>
 
+        <!-- Archive Toggle -->
+        <div class="archive-toggle">
+            <label>
+                <input type="checkbox" id="showPastMeals" checked>
+                <i class="fas fa-archive"></i>
+                Show Past Meals
+            </label>
+        </div>
+
         <!-- Calendar Navigation -->
         <div class="calendar-nav">
             <button onclick="navigateMonth(-1)">
@@ -342,16 +412,20 @@
                 const currentDay = today.getDate();
                 const currentMonth = today.getMonth();
                 const currentYear = today.getFullYear();
+                const todayDate = new Date(currentYear, currentMonth, currentDay);
                 %>
                 
                 <% for (let day = 1; day <= daysInMonth; day++) { %>
                     <%
                     const isToday = (year === currentYear && month === currentMonth && day === currentDay);
+                    const dayDate = new Date(year, month, day);
+                    const isPast = dayDate < todayDate;
                     %>
-                    <div class="day <%= isToday ? 'today' : '' %>" 
+                    <div class="day <%= isToday ? 'today' : '' %> <%= isPast ? 'past' : '' %>" 
                          data-year="<%= year %>" 
                          data-month="<%= month %>" 
-                         data-day="<%= day %>">
+                         data-day="<%= day %>"
+                         data-is-past="<%= isPast %>">
                         <div class="day-number"><%= day %></div>
                         
                         <!-- Meals for this day -->
@@ -364,7 +438,9 @@
                             });
                             %>
                             <% dayMeals.forEach(meal => { %>
-                                <div class="meal <%= meal.family ? 'assigned' : '' %>" data-meal-id="<%= meal._id || '' %>">
+                                <div class="meal <%= meal.family ? 'assigned' : '' %> <%= isPast ? 'past' : '' %>" 
+                                     data-meal-id="<%= meal._id || '' %>"
+                                     data-is-past="<%= isPast %>">
                                     <%= meal.time || 'Meal' %>
                                     <% if (meal.family && meal.family.familyName) { %>
                                         - <%= meal.family.familyName %>
@@ -375,9 +451,11 @@
                             <% }); %>
                         <% } %>
                         
-                        <div class="add-meal" data-action="add-meal">
-                            <i class="fas fa-plus"></i> Add
-                        </div>
+                        <% if (!isPast) { %>
+                            <div class="add-meal" data-action="add-meal">
+                                <i class="fas fa-plus"></i> Add
+                            </div>
+                        <% } %>
                     </div>
                 <% } %>
                 
@@ -408,24 +486,106 @@
                 <span>Family Needed</span>
             </div>
             <div class="legend-item">
+                <div class="legend-color" style="background: #6c757d;"></div>
+                <span>Past Meals (Archived)</span>
+            </div>
+            <div class="legend-item">
                 <div class="legend-color" style="background: #ffc107;"></div>
                 <span>Today</span>
             </div>
         </div>
     </div>
 
-    <!-- Load external JavaScript -->
-    <script src="/js/calendar.js"></script>
     <script>
-        // Pass data from EJS to external script
-        window.CalendarApp.setData(
-            <%= typeof year !== 'undefined' && year !== null ? year : 'null' %>,
-            <%= typeof month !== 'undefined' && month !== null ? month : 'null' %>,
-            '<%= typeof monthName !== "undefined" ? monthName : "Unknown" %>'
-        );
-        
+        // Archive toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
-            window.CalendarApp.init();
+            const showPastMealsCheckbox = document.getElementById('showPastMeals');
+            
+            function togglePastMeals() {
+                const pastDays = document.querySelectorAll('.day.past');
+                const pastMeals = document.querySelectorAll('.meal.past');
+                
+                if (showPastMealsCheckbox.checked) {
+                    // Show past meals
+                    pastDays.forEach(day => {
+                        day.style.display = 'block';
+                    });
+                    pastMeals.forEach(meal => {
+                        meal.style.display = 'block';
+                    });
+                } else {
+                    // Hide past meals
+                    pastDays.forEach(day => {
+                        // Only hide if the day has no future meals
+                        const futureMeals = day.querySelectorAll('.meal:not(.past)');
+                        if (futureMeals.length === 0) {
+                            day.style.opacity = '0.3';
+                        }
+                    });
+                    pastMeals.forEach(meal => {
+                        meal.style.display = 'none';
+                    });
+                }
+            }
+            
+            showPastMealsCheckbox.addEventListener('change', togglePastMeals);
+            
+            // Initialize the state
+            togglePastMeals();
+        });
+
+        // Calendar navigation
+        function navigateMonth(direction) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentYear = parseInt(urlParams.get('year')) || new Date().getFullYear();
+            const currentMonth = parseInt(urlParams.get('month')) || new Date().getMonth();
+            
+            let newYear = currentYear;
+            let newMonth = currentMonth + direction;
+            
+            if (newMonth < 0) {
+                newMonth = 11;
+                newYear--;
+            } else if (newMonth > 11) {
+                newMonth = 0;
+                newYear++;
+            }
+            
+            window.location.href = `/calendar?year=${newYear}&month=${newMonth}`;
+        }
+
+        // Meal click handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle meal clicks
+            document.querySelectorAll('.meal').forEach(meal => {
+                meal.addEventListener('click', function() {
+                    const mealId = this.getAttribute('data-meal-id');
+                    const isPast = this.getAttribute('data-is-past') === 'true';
+                    
+                    if (isPast) {
+                        // Show archive information for past meals
+                        alert('This meal has been completed and is archived.');
+                    } else {
+                        // Navigate to meal details for current/future meals
+                        if (mealId) {
+                            window.location.href = `/meals/${mealId}`;
+                        }
+                    }
+                });
+            });
+
+            // Handle add meal clicks
+            document.querySelectorAll('.add-meal').forEach(addBtn => {
+                addBtn.addEventListener('click', function() {
+                    const dayElement = this.closest('.day');
+                    const year = dayElement.getAttribute('data-year');
+                    const month = dayElement.getAttribute('data-month');
+                    const day = dayElement.getAttribute('data-day');
+                    
+                    // Navigate to new meal form with pre-filled date
+                    window.location.href = `/meals/new?year=${year}&month=${month}&day=${day}`;
+                });
+            });
         });
     </script>
 </body>
