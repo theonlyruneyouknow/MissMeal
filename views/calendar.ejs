@@ -434,7 +434,7 @@
                             const dayMeals = meals.filter(meal => {
                                 if (!meal || !meal.date) return false;
                                 const mealDate = new Date(meal.date);
-                                return mealDate.getDate() === day;
+                                return mealDate.getUTCDate() === day;
                             });
                             %>
                             <% dayMeals.forEach(meal => { %>

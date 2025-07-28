@@ -6,22 +6,79 @@
     <title>Sister Missionaries - Meal Calendar</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5; 
+        }
+        
+        /* Simple Navigation Bar */
+        .nav-bar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px 0;
+            text-align: center;
+        }
+        
+        .nav-bar .nav-buttons {
+            display: inline-flex;
+            gap: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .nav-bar .nav-buttons a {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-bar .nav-buttons a:last-child {
+            border-right: none;
+        }
+        
+        .nav-bar .nav-buttons a:hover {
+            background: #0056b3;
+        }
+        
+        .nav-bar .nav-buttons a.active {
+            background: #28a745;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
-            <div class="nav-links">
-                <a href="/" class="nav-link">Calendar</a>
-                <a href="/calendar/list" class="nav-link active">List View</a>
-                <a href="/" class="nav-link">Card View</a>
-                <a href="/meals" class="nav-link">Meals</a>
-                <a href="/families" class="nav-link">Families</a>
-                <a href="/missionaries" class="nav-link active">Missionaries</a>
-                <a href="/text" class="nav-link">Messages</a>
-            </div>
+    <!-- Simple Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-buttons">
+            <a href="/calendar">
+                <i class="fas fa-calendar"></i> Calendar
+            </a>
+            <a href="/meals">
+                <i class="fas fa-utensils"></i> Meals
+            </a>
+            <a href="/families">
+                <i class="fas fa-users"></i> Families
+            </a>
+            <a href="/missionaries" class="active">
+                <i class="fas fa-user-tie"></i> Missionaries
+            </a>
+            <a href="/companionships">
+                <i class="fas fa-handshake"></i> Companionships
+            </a>
         </div>
-    </nav>
+    </div>
 
     <div class="container">
         <div class="calendar-header">

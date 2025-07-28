@@ -12,48 +12,48 @@
             padding: 0;
             background-color: #f5f5f5; 
         }
-        .navbar {
-            background: #343a40;
-            color: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        
+        /* Simple Navigation Bar */
+        .nav-bar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px 0;
+            text-align: center;
         }
-        .navbar .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
+        
+        .nav-bar .nav-buttons {
+            display: inline-flex;
+            gap: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .navbar .brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-        }
-        .navbar .nav-links {
-            display: flex;
-            gap: 20px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .navbar .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .navbar .nav-links a:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .navbar .nav-links a.active {
+        
+        .nav-bar .nav-buttons a {
+            padding: 10px 20px;
             background: #007bff;
+            color: white;
+            text-decoration: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-bar .nav-buttons a:last-child {
+            border-right: none;
+        }
+        
+        .nav-bar .nav-buttons a:hover {
+            background: #0056b3;
+        }
+        
+        .nav-bar .nav-buttons a.active {
+            background: #28a745;
         }
         .container {
             max-width: 1000px;
@@ -152,38 +152,50 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="brand">
-                <i class="fas fa-utensils"></i> Mission Meals
+    <!-- Simple Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-buttons">
+            <a href="/calendar" class="active">
+                <i class="fas fa-calendar"></i> Calendar
             </a>
-            <ul class="nav-links">
-                <li><a href="/calendar" class="active">
-                    <i class="fas fa-calendar"></i> Calendar
-                </a></li>
-                <li><a href="/dashboard">
-                    <i class="fas fa-chart-pie"></i> Dashboard
-                </a></li>
-                <li><a href="/meals">
-                    <i class="fas fa-utensils"></i> Meals
-                </a></li>
-                <li><a href="/families">
-                    <i class="fas fa-users"></i> Families
-                </a></li>
-                <li><a href="/missionaries">
-                    <i class="fas fa-user-tie"></i> Missionaries
-                </a></li>
-                <li><a href="/companionships">
-                    <i class="fas fa-handshake"></i> Companionships
-                </a></li>
-            </ul>
+            <a href="/meals">
+                <i class="fas fa-utensils"></i> Meals
+            </a>
+            <a href="/families">
+                <i class="fas fa-users"></i> Families
+            </a>
+            <a href="/missionaries">
+                <i class="fas fa-user-tie"></i> Missionaries
+            </a>
+            <a href="/companionships">
+                <i class="fas fa-handshake"></i> Companionships
+            </a>
         </div>
-    </nav>
+    </div>
 
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-list"></i> <%= monthName %> <%= year %> - List View</h1>
+            <h1><i class="fas fa-list"></i> <%= displayTitle %> - List View</h1>
+            <% if (shouldIncludeNextMonth) { %>
+                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i> Showing extended view (< 2 weeks left in month)
+                </p>
+            <% } %>
+        </div>
+
+        <!-- Navigation -->
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px; gap: 20px;">
+            <a href="/calendar/list?year=<%= prevYear %>&month=<%= prevMonth %>" 
+               style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-chevron-left"></i> Previous Month
+            </a>
+            <span style="font-size: 18px; font-weight: bold; color: #333; min-width: 200px; text-align: center;">
+                <%= displayTitle %>
+            </span>
+            <a href="/calendar/list?year=<%= nextYear %>&month=<%= nextMonth %>" 
+               style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; display: flex; align-items: center; gap: 8px;">
+                Next Month <i class="fas fa-chevron-right"></i>
+            </a>
         </div>
 
         <div class="actions">
