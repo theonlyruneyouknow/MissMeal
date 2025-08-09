@@ -13,71 +13,11 @@
             padding: 0;
             background-color: #f5f5f5; 
         }
-        
-        /* Simple Navigation Bar */
-        .nav-bar {
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            padding: 10px 0;
-            text-align: center;
-        }
-        
-        .nav-bar .nav-buttons {
-            display: inline-flex;
-            gap: 0;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .nav-bar .nav-buttons a {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background-color 0.2s;
-            border-right: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .nav-bar .nav-buttons a:last-child {
-            border-right: none;
-        }
-        
-        .nav-bar .nav-buttons a:hover {
-            background: #0056b3;
-        }
-        
-        .nav-bar .nav-buttons a.active {
-            background: #28a745;
-        }
     </style>
 </head>
 <body>
     <!-- Simple Navigation Bar -->
-    <div class="nav-bar">
-        <div class="nav-buttons">
-            <a href="/calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a href="/meals">
-                <i class="fas fa-utensils"></i> Meals
-            </a>
-            <a href="/families">
-                <i class="fas fa-users"></i> Families
-            </a>
-            <a href="/missionaries" class="active">
-                <i class="fas fa-user-tie"></i> Missionaries
-            </a>
-            <a href="/companionships">
-                <i class="fas fa-handshake"></i> Companionships
-            </a>
-        </div>
+    <%- include('../partials/navigation', { activePage: 'missionaries' }) %>
     </div>
 
     <div class="container">

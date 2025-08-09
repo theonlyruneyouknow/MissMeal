@@ -331,30 +331,15 @@
 </head>
 <body>
     <!-- Simple Navigation Bar -->
-    <div class="nav-bar">
-        <div class="nav-buttons">
-            <a href="/calendar" class="active">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a href="/meals">
-                <i class="fas fa-utensils"></i> Meals
-            </a>
-            <a href="/families">
-                <i class="fas fa-users"></i> Families
-            </a>
-            <a href="/missionaries">
-                <i class="fas fa-user-tie"></i> Missionaries
-            </a>
-            <a href="/companionships">
-                <i class="fas fa-handshake"></i> Companionships
-            </a>
-        </div>
-    </div>
+    <%- include('partials/navigation', { activePage: 'calendar' }) %>
 
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-calendar"></i> Sister Missionary Meal Calendar</h1>
         </div>
+
+        <!-- Manual Notification Notice for Families -->
+        <%- include('partials/sms-notice') %>
 
         <!-- Calendar Actions -->
         <div class="calendar-actions">

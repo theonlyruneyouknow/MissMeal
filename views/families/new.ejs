@@ -8,18 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1><i class="fas fa-utensils"></i> Sister Missionary Meal Calendar</h1>
-            <div class="nav-links">
-                <a href="/" class="nav-link">Calendar</a>
-                <a href="/meals" class="nav-link">Meals</a>
-                <a href="/families" class="nav-link active">Families</a>
-                <a href="/missionaries" class="nav-link">Missionaries</a>
-                <a href="/text" class="nav-link">Messages</a>
-            </div>
-        </div>
-    </nav>
+    <%- include('../partials/navigation', { activePage: 'families' }) %>
+    <%- include('../partials/sms-notice') %>
 
     <div class="container">
         <div class="calendar-header">
@@ -155,6 +145,51 @@
                     </div>
                 </div>
                 
+                <div class="form-section">
+                    <h3><i class="fas fa-mobile-alt"></i> Communication Preferences</h3>
+                    
+                    <!-- SMS Opt-in Notice -->
+                    <div style="background-color: #e7f3ff; border: 1px solid #6cb2eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <i class="fas fa-info-circle" style="color: #0066cc; font-size: 1.1rem; margin-top: 2px;"></i>
+                            <div>
+                                <h4 style="margin: 0 0 0.5rem 0; color: #0066cc; font-size: 1rem;">
+                                    <strong>Automated Text Notifications Coming Soon!</strong>
+                                </h4>
+                                <p style="margin: 0 0 0.5rem 0; color: #004499; line-height: 1.5; font-size: 0.95rem;">
+                                    We're implementing automated SMS reminders and notifications for meal signups and updates. 
+                                    <strong>Please opt in now</strong> to receive these messages once the system is active.
+                                </p>
+                                <p style="margin: 0; color: #004499; line-height: 1.4; font-size: 0.9rem; font-style: italic;">
+                                    <i class="fas fa-clock"></i> <strong>Currently:</strong> Manual texting required when signing up for meals. 
+                                    <strong>Soon:</strong> Automatic confirmations, reminders, and updates!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Text Message Notifications</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="preferredContactMethod" value="sms" checked>
+                                <strong>Yes, I want to receive text notifications</strong>
+                                <small class="radio-help">Recommended - Get automated meal confirmations and reminders once available</small>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="preferredContactMethod" value="email">
+                                <strong>Email notifications only</strong>
+                                <small class="radio-help">Receive notifications via email instead of text messages</small>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="preferredContactMethod" value="none">
+                                <strong>No automated notifications</strong>
+                                <small class="radio-help">Manual communication only</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-actions">
                     <a href="/families" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
@@ -256,6 +291,61 @@
         .checkbox-label input[type="checkbox"] {
             width: auto;
             margin: 0;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .radio-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            font-weight: normal;
+            cursor: pointer;
+            margin-bottom: 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .radio-label:hover {
+            border-color: #3498db;
+            background: #f8fbff;
+        }
+        
+        .radio-label input[type="radio"] {
+            width: auto;
+            margin-right: 0.5rem;
+            align-self: flex-start;
+        }
+        
+        .radio-label input[type="radio"]:checked + strong {
+            color: #3498db;
+        }
+        
+        .radio-label input[type="radio"]:checked {
+            border: 2px solid #3498db;
+        }
+        
+        .radio-label:has(input[type="radio"]:checked) {
+            border-color: #3498db;
+            background: #ebf3fd;
+        }
+        
+        .radio-help {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-left: 1.25rem;
         }
         
         .form-actions {

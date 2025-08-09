@@ -1,12 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const Missionary = require('../models/Missionary');
+const Companionship = require('../models/Companionship');
 
 // GET /missionaries - List all missionaries
 router.get('/', async (req, res) => {
   try {
     const missionaries = await Missionary.find().sort({ lastName: 1, firstName: 1 });
-    res.render('missionaries/index', { missionaries });
+    const companionshipsData = await Companionship.find({ isActive: true })
+      .populate('missionaries')
+      .sort({ area: 1 });
+
+    // Organize companionships by area
+    const companionships = {};
+    companionshipsData.forEach(comp => {
+      if (!companionships[comp.area]) {
+        companionships[comp.area] = [];
+      }
+
+      // Add each missionary in the companionship to the area
+      comp.missionaries.forEach(missionary => {
+        companionships[comp.area].push({
+          ...missionary.toObject(),
+          companionshipId: comp._id,
+          companionshipName: comp.name
+        });
+      });
+    });
+
+    res.render('missionaries/index', { missionaries, companionships });
   } catch (error) {
     console.error('Error fetching missionaries:', error);
     res.status(500).send('Error fetching missionaries');

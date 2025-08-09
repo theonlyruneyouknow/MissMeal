@@ -51,6 +51,21 @@ const familySchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  smsOptIn: {
+    type: Boolean,
+    default: false
+  },
+  smsOptInDate: {
+    type: Date
+  },
+  smsOptOutDate: {
+    type: Date
+  },
+  preferredContactMethod: {
+    type: String,
+    enum: ['sms', 'email', 'phone', 'both'],
+    default: 'email'
+  },
   createdAt: {
     type: Date,
     default: Date.now

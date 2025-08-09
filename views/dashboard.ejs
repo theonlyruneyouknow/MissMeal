@@ -158,30 +158,15 @@
 </head>
 <body>
     <!-- Simple Navigation Bar -->
-    <div class="nav-bar">
-        <div class="nav-buttons">
-            <a href="/calendar">
-                <i class="fas fa-calendar"></i> Calendar
-            </a>
-            <a href="/meals">
-                <i class="fas fa-utensils"></i> Meals
-            </a>
-            <a href="/families">
-                <i class="fas fa-users"></i> Families
-            </a>
-            <a href="/missionaries">
-                <i class="fas fa-user-tie"></i> Missionaries
-            </a>
-            <a href="/companionships">
-                <i class="fas fa-handshake"></i> Companionships
-            </a>
-        </div>
-    </div>
+    <%- include('partials/navigation', { activePage: 'dashboard' }) %>
 
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-chart-pie"></i> Mission Meal Dashboard</h1>
         </div>
+
+        <!-- System Status Notice -->
+        <%- include('partials/sms-notice') %>
 
         <div class="stats-grid">
             <div class="stat-card">

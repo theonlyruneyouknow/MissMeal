@@ -98,12 +98,14 @@ try {
   const familiesRouter = require('./routes/families');
   const missionariesRouter = require('./routes/missionaries');
   const companionshipsRouter = require('./routes/companionships');
+  const textRouter = require('./routes/text');
 
   // Use routes
   app.use('/meals', mealsRouter);
   app.use('/families', familiesRouter);
   app.use('/missionaries', missionariesRouter);
   app.use('/companionships', companionshipsRouter);
+  app.use('/text', textRouter);
 
   console.log('✅ All routes loaded successfully');
 } catch (error) {

@@ -46,6 +46,21 @@ const missionarySchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  smsOptIn: {
+    type: Boolean,
+    default: false
+  },
+  smsOptInDate: {
+    type: Date
+  },
+  smsOptOutDate: {
+    type: Date
+  },
+  preferredContactMethod: {
+    type: String,
+    enum: ['sms', 'email', 'phone', 'both'],
+    default: 'email'
+  },
   notes: {
     type: String,
     default: ''
@@ -57,7 +72,7 @@ const missionarySchema = new mongoose.Schema({
 });
 
 // Pre-save hook to create fullName
-missionarySchema.pre('save', function(next) {
+missionarySchema.pre('save', function (next) {
   this.fullName = `Sister ${this.firstName} ${this.lastName}`;
   next();
 });
